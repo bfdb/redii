@@ -1,0 +1,206 @@
+RegionName	RegionCode	CountryName	CountryCode	ISO3
+RoW Asia and Pacific	RoA	Afghanistan	AF	AFG
+RoW Asia and Pacific	RoA	American Samoa	AS	ASM
+RoW Asia and Pacific	RoA	Antarctica	AQ	ATA
+RoW Asia and Pacific	RoA	Armenia	AM	ARM
+RoW Asia and Pacific	RoA	Azerbaijan	AZ	AZE
+RoW Asia and Pacific	RoA	Bangladesh	BD	BGD
+RoW Asia and Pacific	RoA	Bhutan	BT	BTN
+RoW Asia and Pacific	RoA	Bouvet Island	BV	BVT
+RoW Asia and Pacific	RoA	British Antarctic Territories	B1	BA1
+RoW Asia and Pacific	RoA	British Indian Ocean Territory	IO	IOT
+RoW Asia and Pacific	RoA	Brunei Darussalam	BN	BRN
+RoW Asia and Pacific	RoA	Cambodia	KH	KHM
+RoW Asia and Pacific	RoA	Christmas Island	CX	CXR
+RoW Asia and Pacific	RoA	Cocos (Keeling) Islands	CC	CCK
+RoW Asia and Pacific	RoA	Cook Islands	CK	COK
+RoW Asia and Pacific	RoA	Fiji	FJ	FJI
+RoW Asia and Pacific	RoA	French Polynesia	PF	PYF
+RoW Asia and Pacific	RoA	Georgia	GE	GEO
+RoW Asia and Pacific	RoA	Guam	GU	GUM
+RoW Asia and Pacific	RoA	Heard and mc donald islands	HM	HMD
+RoW Asia and Pacific	RoA	Hong Kong SAR, China	HK	HKG
+RoW Asia and Pacific	RoA	Kazakhstan	KZ	KAZ
+RoW Asia and Pacific	RoA	Kiribati	KI	KIR
+RoW Asia and Pacific	RoA	Korea, democratic people's republic of	KP	PRK
+RoW Asia and Pacific	RoA	Kyrgyz Republic	KG	KGZ
+RoW Asia and Pacific	RoA	Lao PDR	LA	LAO
+RoW Asia and Pacific	RoA	Macao SAR, China	MO	MAC
+RoW Asia and Pacific	RoA	Malaysia	MY	MYS
+RoW Asia and Pacific	RoA	Maldives	MV	MDV
+RoW Asia and Pacific	RoA	Marshall Islands	MH	MHL
+RoW Asia and Pacific	RoA	Micronesia, Fed. Sts.	FM	FSM
+RoW Asia and Pacific	RoA	Mongolia	MN	MNG
+RoW Asia and Pacific	RoA	Myanmar	MM	MMR
+RoW Asia and Pacific	RoA	Nauru	NR	NRU
+RoW Asia and Pacific	RoA	Nepal	NP	NPL
+RoW Asia and Pacific	RoA	New Caledonia	NC	NCL
+RoW Asia and Pacific	RoA	New Zealand	NZ	NZL
+RoW Asia and Pacific	RoA	Niue	NU	NIU
+RoW Asia and Pacific	RoA	Norfolk Island	NF	NFK
+RoW Asia and Pacific	RoA	Northern Mariana Islands	MP	MNP
+RoW Asia and Pacific	RoA	Pakistan	PK	PAK
+RoW Asia and Pacific	RoA	Palau	PW	PLW
+RoW Asia and Pacific	RoA	Papua New Guinea	PG	PNG
+RoW Asia and Pacific	RoA	Philippines	PH	PHL
+RoW Asia and Pacific	RoA	Pitcairn	PN	PCN
+RoW Asia and Pacific	RoA	Samoa	WS	WSM
+RoW Asia and Pacific	RoA	Singapore	SG	SGP
+RoW Asia and Pacific	RoA	Solomon Islands	SB	SLB
+RoW Asia and Pacific	RoA	South georgia and the south sandwich is	GS	SGS
+RoW Asia and Pacific	RoA	Sri Lanka	LK	LKA
+RoW Asia and Pacific	RoA	Tajikistan	TJ	TJK
+RoW Asia and Pacific	RoA	Thailand	TH	THA
+RoW Asia and Pacific	RoA	Timor-Leste	TL	TLS
+RoW Asia and Pacific	RoA	Tokelau	TK	TKL
+RoW Asia and Pacific	RoA	Tonga	TO	TON
+RoW Asia and Pacific	RoA	Turkmenistan	TM	TKM
+RoW Asia and Pacific	RoA	Tuvalu	TV	TUV
+RoW Asia and Pacific	RoA	United states minor outlying islands	UM	UMI
+RoW Asia and Pacific	RoA	Uzbekistan	UZ	UZB
+RoW Asia and Pacific	RoA	Vanuatu	VU	VUT
+RoW Asia and Pacific	RoA	Vietnam	VN	VNM
+RoW Asia and Pacific	RoA	Wallis and futuna Islands	WF	WLF
+RoW Europe	RoE	Albania	AL	ALB
+RoW Europe	RoE	Andorra	AD	AND
+RoW Europe	RoE	Belarus	BY	BLR
+RoW Europe	RoE	Bosnia and Herzegovina	BA	BIH
+RoW Europe	RoE	Channel Islands		CHI
+RoW Europe	RoE	Faeroe Islands	FO	FRO
+RoW Europe	RoE	Gibraltar	GI	GIB
+RoW Europe	RoE	Iceland	IS	ISL
+RoW Europe	RoE	Isle of Man	IM	IMY
+RoW Europe	RoE	Kosovo		RKS
+RoW Europe	RoE	Liechtenstein	LI	LIE
+RoW Europe	RoE	Macedonia, FYR	MK	MKD
+RoW Europe	RoE	Moldova	MD	MDA
+RoW Europe	RoE	Monaco	MC	MCO
+RoW Europe	RoE	Montenegro	ME	MNE
+RoW Europe	RoE	San Marino	SM	SMR
+RoW Europe	RoE	Serbia	RS	SRB
+RoW Europe	RoE	Svalbard and jan mayen islands	SJ	SJM
+RoW Europe	RoE	Ukraine	UA	UKR
+RoW Europe	RoE	Vatican city state (holy see)	VA	VAT
+RoW Middle East	RoM	Bahrain	BH	BHR
+RoW Middle East	RoM	Egypt, Arab Rep.	EG	EGY
+RoW Middle East	RoM	Iran, Islamic Rep.	IR	IRN
+RoW Middle East	RoM	Iraq	IQ	IRQ
+RoW Middle East	RoM	Israel	IL	ISR
+RoW Middle East	RoM	Jordan	JO	JOR
+RoW Middle East	RoM	Kuwait	KW	KWT
+RoW Middle East	RoM	Lebanon	LB	LBN
+RoW Middle East	RoM	Oman	OM	OMN
+RoW Middle East	RoM	Palestine	PS	PSE
+RoW Middle East	RoM	Qatar	QA	QAT
+RoW Middle East	RoM	Saudi Arabia	SA	SAU
+RoW Middle East	RoM	Syrian Arab Republic	SY	SYR
+RoW Middle East	RoM	United Arab Emirates	AE	ARE
+RoW Middle East	RoM	Yemen, Rep.	YE	YEM
+RoW Africa	RoF	Algeria	DZ	DZA
+RoW Africa	RoF	Angola	AO	AGO
+RoW Africa	RoF	Benin	BJ	BEN
+RoW Africa	RoF	Botswana	BW	BWA
+RoW Africa	RoF	Burkina Faso	BF	BFA
+RoW Africa	RoF	Burundi	BI	BDI
+RoW Africa	RoF	Cameroon	CM	CMR
+RoW Africa	RoF	Cape Verde	CV	CPV
+RoW Africa	RoF	Central African Republic	CF	CAF
+RoW Africa	RoF	Chad	TD	TCD
+RoW Africa	RoF	Comoros	KM	COM
+RoW Africa	RoF	Congo, Dem. Rep.	CD	COD
+RoW Africa	RoF	Congo, Rep.	CG	COG
+RoW Africa	RoF	Cote d'Ivoire	CI	CIV
+RoW Africa	RoF	Djibouti	DJ	DJI
+RoW Africa	RoF	Equatorial Guinea	GQ	GNQ
+RoW Africa	RoF	Eritrea	ER	ERI
+RoW Africa	RoF	Ethiopia	ET	ETH
+RoW Africa	RoF	French guiana	GF	GUF
+RoW Africa	RoF	Gabon	GA	GAB
+RoW Africa	RoF	Gambia, The	GM	GMB
+RoW Africa	RoF	Ghana	GH	GHA
+RoW Africa	RoF	Guinea	GN	GIN
+RoW Africa	RoF	Guinea-Bissau	GW	GNB
+RoW Africa	RoF	Kenya	KE	KEN
+RoW Africa	RoF	Lesotho	LS	LSO
+RoW Africa	RoF	Liberia	LR	LBR
+RoW Africa	RoF	Libya	LY	LBY
+RoW Africa	RoF	Madagascar	MG	MDG
+RoW Africa	RoF	Malawi	MW	MWI
+RoW Africa	RoF	Mali	ML	MLI
+RoW Africa	RoF	Mauritania	MR	MRT
+RoW Africa	RoF	Mauritius	MU	MUS
+RoW Africa	RoF	Mayotte	YT	MYT
+RoW Africa	RoF	Morocco	MA	MAR
+RoW Africa	RoF	Mozambique	MZ	MOZ
+RoW Africa	RoF	Namibia	NA	NAM
+RoW Africa	RoF	Niger	NE	NER
+RoW Africa	RoF	Nigeria	NG	NGA
+RoW Africa	RoF	Reunion	RE	REU
+RoW Africa	RoF	Rwanda	RW	RWA
+RoW Africa	RoF	Sao Tome and Principe	ST	STP
+RoW Africa	RoF	Senegal	SN	SEN
+RoW Africa	RoF	Seychelles	SC	SYC
+RoW Africa	RoF	Sierra Leone	SL	SLE
+RoW Africa	RoF	Somalia	SO	SOM
+RoW Africa	RoF	South Sudan		SSD
+RoW Africa	RoF	St. Helena	SH	SHN
+RoW Africa	RoF	Sudan	SD	SDN
+RoW Africa	RoF	Swaziland	SZ	SWZ
+RoW Africa	RoF	Tanganjika		EAT
+RoW Africa	RoF	Tanzania	TZ	TZA
+RoW Africa	RoF	Togo	TG	TGO
+RoW Africa	RoF	Tunisia	TN	TUN
+RoW Africa	RoF	Uganda	UG	UGA
+RoW Africa	RoF	Western sahara	EH	ESH
+RoW Africa	RoF	Zambia	ZM	ZMB
+RoW Africa	RoF	Zanzibar		EAZ
+RoW Africa	RoF	Zimbabwe	ZW	ZWE
+RoW America	RoL	Anguilla	AI	AIA
+RoW America	RoL	Antigua and Barbuda	AG	ATG
+RoW America	RoL	Argentina	AR	ARG
+RoW America	RoL	Aruba	AW	ABW
+RoW America	RoL	Bahamas, The	BS	BHS
+RoW America	RoL	Barbados	BB	BRB
+RoW America	RoL	Belize	BZ	BLZ
+RoW America	RoL	Bermuda	BM	BMU
+RoW America	RoL	Bolivia	BO	BOL
+RoW America	RoL	Bonaire, Saint Eustatius and Saba	??	BES
+RoW America	RoL	Cayman Islands	KY	CYM
+RoW America	RoL	Chile	CL	CHL
+RoW America	RoL	Colombia	CO	COL
+RoW America	RoL	Costa Rica	CR	CRI
+RoW America	RoL	Cuba	CU	CUB
+RoW America	RoL	Curaçao	CW	CUW
+RoW America	RoL	Dominica	DM	DMA
+RoW America	RoL	Dominican Republic	DO	DOM
+RoW America	RoL	Ecuador	EC	ECU
+RoW America	RoL	El Salvador	SV	SLV
+RoW America	RoL	Falkland Islands (Malvinas)	FK	FLK
+RoW America	RoL	Greenland	GL	GRL
+RoW America	RoL	Grenada	GD	GRD
+RoW America	RoL	Guadeloupe	GP	GLP
+RoW America	RoL	Guatemala	GT	GTM
+RoW America	RoL	Guyana	GY	GUY
+RoW America	RoL	Haiti	HT	HTI
+RoW America	RoL	Honduras	HN	HND
+RoW America	RoL	Jamaica	JM	JAM
+RoW America	RoL	Martinique	MQ	MTQ
+RoW America	RoL	Montserrat	MS	MSR
+RoW America	RoL	Netherlands Antilles	AN	ANT
+RoW America	RoL	Nicaragua	NI	NIC
+RoW America	RoL	Panama	PA	PAN
+RoW America	RoL	Paraguay	PY	PRY
+RoW America	RoL	Peru	PE	PER
+RoW America	RoL	Puerto Rico	PR	PRI
+RoW America	RoL	Sint Maarten (Dutch part)		SXM
+RoW America	RoL	St. Kitts and Nevis	KN	KNA
+RoW America	RoL	St. Lucia	LC	LCA
+RoW America	RoL	St. Pierre and Miquelon	PM	SPM
+RoW America	RoL	St. Vincent and the Grenadines	VC	VCT
+RoW America	RoL	Suriname	SR	SUR
+RoW America	RoL	Trinidad and Tobago	TT	TTO
+RoW America	RoL	Turks and Caicos Islands	TC	TCA
+RoW America	RoL	Uruguay	UY	URY
+RoW America	RoL	Venezuela, RB	VE	VEN
+RoW America	RoL	British Virgin Islands	VG	VGB
+RoW America	RoL	Virgin islands (u.s.)	VI	VIR

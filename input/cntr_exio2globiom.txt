@@ -1,0 +1,39 @@
+AFR	Africa
+AUS	Australia
+CHN	China
+RUS	Russian Federation
+IND	India
+KOR	Korea
+LAM	Latin America
+MDE	Middle East
+SEA	Southeast Asia
+USA	USA_Canada
+EU28_AT	Austria
+EU28_BE	Belgium
+EU28_BG	Bulgaria
+EU28_CY	Cyprus
+EU28_CZ	CzechRep
+EU28_DE	Germany
+EU28_DK	Denmark
+EU28_EE	Estonia
+EU28_ES	Spain
+EU28_FI	Finland
+EU28_FR	France
+EU28_GB	UK
+EU28_GR	Greece
+EU28_HR	Croatia
+EU28_HU	Hungary
+EU28_IE	Ireland
+EU28_IT	Italy
+EU28_LT	Lithuania
+EU28_LU	Luxembourg
+EU28_LV	Latvia
+EU28_MT	Malta
+EU28_NL	Netherlands
+EU28_PL	Poland
+EU28_PT	Portugal
+EU28_RO	Romania
+EU28_SE	Sweden
+EU28_SI	Slovenia
+EU28_SK	Slovakia
+RoE	Rest of Europe
