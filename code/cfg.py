@@ -67,6 +67,7 @@ file_name_scen_eu28 = "trial_simulation_redii_scenario_eu28.gdx"
 
 file_name_var_plot_eu28 = "var_plot_eu28.txt"
 
+file_name_eb_pxp2ixi = 'eb_pxp2ixi.txt'
 
 # file_name_nuts2_shp = "NUTS_RG_20M_2003_3035_LEVL_2.shp"
 file_name_nuts2_shp = "EU_nuts_revisited"

@@ -245,3 +245,31 @@ def redii_iso3():
                     d_cntr_redii2exio_iso3[cntr_redii].append(cntr_rox_iso3)
 
     return d_cntr_redii2exio_iso3
+
+
+def load_data(eb_ver_name, l_cntr, source):
+
+    d_eb_proc = read_eb_proc(eb_ver_name)
+
+    if source == 'eb':
+        # use exiobase data.
+        df_a_mr = d_eb_proc['cA']
+        df_y_mr = d_eb_proc['tY']
+
+    elif source == 'cm':
+        # use circumat data.
+        A_mr = np.load(data_folder+"A_v4.npy")
+        Y_mr = np.load(data_folder+"Y_v4.npy")
+
+        df_a_mr = pd.DataFrame(A_mr,
+                               index=d_eb_proc['cA'].index,
+                               columns=d_eb_proc['cA'].columns)
+
+        df_y_mr = pd.DataFrame(Y_mr,
+                               index=d_eb_proc['tY'].index,
+                               columns=d_eb_proc['tY'].columns)
+
+    df_a_mr_cntr = df_a_mr[l_cntr].loc[l_cntr]
+    df_y_mr_cntr = df_y_mr[l_cntr].loc[l_cntr]
+
+    return df_a_mr_cntr, df_y_mr_cntr
