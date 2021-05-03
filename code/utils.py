@@ -38,11 +38,9 @@ def log(str_log):
     """ Log console output to file.
 
     """
-    print('\n{}'.format(str_log))
-    with open(cfg.LOG_DIR_PATH+cfg.LOG_FILE_NAME, cfg.log_mode) as write_file:
-        csv_file = csv.writer(write_file,
-                              delimiter='\t',
-                              lineterminator='\n')
+    print("\n{}".format(str_log))
+    with open(cfg.LOG_DIR_PATH + cfg.LOG_FILE_NAME, cfg.log_mode) as write_file:
+        csv_file = csv.writer(write_file, delimiter="\t", lineterminator="\n")
         csv_file.writerow([str_log])
 
 
@@ -51,21 +49,18 @@ def makedirs():
 
     """
     list_log_makedirs = []
-    list_log_makedirs.append('Making output directories in:')
-    list_log_makedirs.append('    {}'.format(cfg.OUTPUT_DIR_PATH))
+    list_log_makedirs.append("Making output directories in:")
+    list_log_makedirs.append("    {}".format(cfg.OUTPUT_DIR_PATH))
     for output_dir_path in cfg.LIST_OUTPUT_DIR_PATH:
         try:
             os.makedirs(output_dir_path)
         except FileExistsError:
-            list_log_makedirs.append(
-                '    Output directory already exists:')
-            list_log_makedirs.append(
-                '    {}'.format(output_dir_path))
-            list_log_makedirs.append(
-                '    This run will overwrite previous output.')
+            list_log_makedirs.append("    Output directory already exists:")
+            list_log_makedirs.append("    {}".format(output_dir_path))
+            list_log_makedirs.append("    This run will overwrite previous output.")
     for log_makedirs in list_log_makedirs:
         log(log_makedirs)
-        cfg.log_mode = 'a'
+        cfg.log_mode = "a"
 
 
 def cntr2reg(dict_code2cntr, dict_code2reg):
