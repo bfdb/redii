@@ -33,10 +33,10 @@ data_folder = cfg.INPUT_DIR_PATH+'cm/'
 # To reproduce circumat: pxp and excl. uk, for redii: ixi and incl. uk.
 
 # eb_ver = 'pxp'
-b_incl_uk = False
+# b_incl_uk = False
 
 eb_ver = 'ixi'
-# b_incl_uk = True
+b_incl_uk = True
 
 
 if eb_ver == 'ixi':
@@ -90,7 +90,15 @@ VA_mr_original = np.array((original_X_mr) - np.sum(Z_mr_original, axis=0))
 # list including the table for country and its subnational details
 regions = pd.read_excel(data_folder+"circumat_regions_v3.xls")
 
+# list of final demand categories for EXIOBASE regions.
+l_y_col = list(df_y_mr.columns)
+l_idx = list(df_y_mr.index)
+
 for m, n in zip(country_start, country):
+
+    # get labels of final demand categories.
+    l_y_cat = list(df_y_mr[n].columns)
+    l_sect = list(df_y_mr.loc[n].index)
     # this list will be used to recover the individual X_rr arrays of each region
     # when calculating everything at once.
     X_rr_list = (
@@ -165,6 +173,24 @@ for m, n in zip(country_start, country):
 
         if id_rof != n:
             break
+
+        # generate labels of final demand categories for nuts2 region
+        l_y_nuts2_cat = []
+        for cat in l_y_cat:
+            t_nuts2_cat = (id_Nuts2, cat)
+            l_y_nuts2_cat.append(t_nuts2_cat)
+
+        # concatenate with list of final demand categories for EXIOBASE regions.
+        l_y_col += l_y_nuts2_cat
+
+        # generate labels of sectors for nuts2 region
+        l_y_nuts2_sect = []
+        for sect in l_sect:
+            t_nuts2_sect = (id_Nuts2, sect)
+            l_y_nuts2_sect.append(t_nuts2_sect)
+
+        # concatenate with indices for EXIOBASE regions-sector pairs.
+        l_idx += l_y_nuts2_sect
 
         id_prev = id_rof
         Region_names.append(id_Nuts2)
@@ -735,6 +761,13 @@ for m, n in zip(country_start, country):
     #plt.savefig('Disagg_example.png', dpi = 300, bbox_inches='tight')
     plt.show()
     """
+
+    mi_y_col = pd.MultiIndex.from_tuples(l_y_col)
+    mi_idx = pd.MultiIndex.from_tuples(l_idx)
+    df_a_mr_disagg_final = pd.DataFrame(A_mr_disagg_final,
+                                        index=mi_idx, columns=mi_idx)
+    df_y_mr_disagg_final = pd.DataFrame(Y_mr_disagg_final,
+                                        index=mi_idx, columns=mi_y_col)
 
     # %%
     """ Save output disagg data """
