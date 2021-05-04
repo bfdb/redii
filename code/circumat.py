@@ -29,9 +29,15 @@ country = ["IE"]
 
 data_folder = cfg.INPUT_DIR_PATH+'cm/'
 
-# Choose pxp or ixi, and incl or excl UK.
+# Choose pxp or ixi, and incl. or excl. UK.
+# To reproduce circumat: pxp and excl. uk, for redii: ixi and incl. uk.
+
+# eb_ver = 'pxp'
+b_incl_uk = False
+
 eb_ver = 'ixi'
-b_incl_uk = True
+# b_incl_uk = True
+
 
 if eb_ver == 'ixi':
     eb_ver_name = cfg.T_EB_IXI_FPA_3_3_2011_PROC
@@ -151,6 +157,9 @@ for m, n in zip(country_start, country):
         # find the label of the country; the code of it.
         # that is the frst two letter of above
         id_rof = id_Nuts2[0:2]
+
+        print(f'Nuts2 {Nuts2}, rof {rof}, name_rof {name_rof}, ' +
+              'id_Nuts2 {id_Nuts2}, id_rof {id_rof}')
 
         # Stop the code from running on to a new nation.
 
@@ -272,6 +281,7 @@ for m, n in zip(country_start, country):
             np.transpose(sbs_emp_numbers), convert_matrix
         )
 
+        # if ixi, multiply with concordance matrix from pxp to ixi.
         if eb_ver == 'ixi':
             df_eb_pxp2ixi = pd.read_csv(cfg.INPUT_DIR_PATH+cfg.file_name_eb_pxp2ixi,
                                         sep='\t',
@@ -310,9 +320,13 @@ for m, n in zip(country_start, country):
 
         # find the rows and column indices of the country in the exiobase in py
         # (ie index starts from 0)
-        Zcolumns_of_rof = np.array(range(rof * n_s - (n_s - 1) - 1, rof * n_s)) - n_sect
-        Ycolumns_of_rof = np.array(range(rof * n_y - (n_y - 1) - 1, rof * n_y)) - n_y
-        Zrows_of_rof = np.array(range(rof * n_s - (n_s - 1) - 1, rof * n_s)) - n_sect
+        # changed calculation to accomodate for inclusion of UK
+        Zcolumns_of_rof = np.array(range(df_a_mr.columns.get_loc(n).start,
+                                         df_a_mr.columns.get_loc(n).stop))
+        Ycolumns_of_rof = np.array(range(df_y_mr.columns.get_loc(n).start,
+                                         df_y_mr.columns.get_loc(n).stop))
+        Zrows_of_rof = np.array(range(df_a_mr.index.get_loc(n).start,
+                                      df_a_mr.index.get_loc(n).stop))
 
         """
         The second partion of this code focuses on building the new regional matrix
