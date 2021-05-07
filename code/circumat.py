@@ -32,12 +32,11 @@ data_folder = cfg.INPUT_DIR_PATH+'cm/'
 # Choose pxp or ixi, and incl. or excl. UK.
 # To reproduce circumat: pxp and excl. uk, for redii: ixi and incl. uk.
 
-# eb_ver = 'pxp'
-# b_incl_uk = False
+eb_ver = 'pxp'
+b_incl_uk = False
 
-eb_ver = 'ixi'
-b_incl_uk = True
-
+# eb_ver = 'ixi'
+# b_incl_uk = True
 
 if eb_ver == 'ixi':
     eb_ver_name = cfg.T_EB_IXI_FPA_3_3_2011_PROC
@@ -93,12 +92,16 @@ regions = pd.read_excel(data_folder+"circumat_regions_v3.xls")
 # list of final demand categories for EXIOBASE regions.
 l_y_col = list(df_y_mr.columns)
 l_idx = list(df_y_mr.index)
+l_idx_nuts2 = l_idx.copy()
 
 for m, n in zip(country_start, country):
 
     # get labels of final demand categories.
     l_y_cat = list(df_y_mr[n].columns)
+
+    # get labels of sectors (either product or index, depending on pxp or ixi)
     l_sect = list(df_y_mr.loc[n].index)
+
     # this list will be used to recover the individual X_rr arrays of each region
     # when calculating everything at once.
     X_rr_list = (
@@ -190,7 +193,7 @@ for m, n in zip(country_start, country):
             l_y_nuts2_sect.append(t_nuts2_sect)
 
         # concatenate with indices for EXIOBASE regions-sector pairs.
-        l_idx += l_y_nuts2_sect
+        l_idx_nuts2 += l_y_nuts2_sect
 
         id_prev = id_rof
         Region_names.append(id_Nuts2)
@@ -762,13 +765,29 @@ for m, n in zip(country_start, country):
     plt.show()
     """
 
+    # add labels to data
     mi_y_col = pd.MultiIndex.from_tuples(l_y_col)
+    mi_idx_nuts2 = pd.MultiIndex.from_tuples(l_idx_nuts2)
     mi_idx = pd.MultiIndex.from_tuples(l_idx)
-    df_a_mr_disagg_final = pd.DataFrame(A_mr_disagg_final,
-                                        index=mi_idx, columns=mi_idx)
-    df_y_mr_disagg_final = pd.DataFrame(Y_mr_disagg_final,
-                                        index=mi_idx, columns=mi_y_col)
 
+    df_a_mr_disagg_final = pd.DataFrame(A_mr_disagg_final,
+                                        index=mi_idx_nuts2, columns=mi_idx_nuts2)
+    df_y_mr_disagg_final = pd.DataFrame(Y_mr_disagg_final,
+                                        index=mi_idx_nuts2, columns=mi_y_col)
+    df_va_mr_disagg_final = pd.Series(VA_mr_disagg,
+                                      index=mi_idx_nuts2)
+    df_va_mr_original_final = pd.Series(VA_mr_original,
+                                        index=mi_idx)
+
+    # test if sum of VA IE is equal to sum of VA IExx NUTS2
+    l_nuts2 = ['IE04', 'IE05', 'IE06']
+    df_va_ie = df_va_mr_original_final['IE']
+    df_va_ie_nuts2 = df_va_mr_disagg_final[l_nuts2]
+    print(f'df_va_ie.sum() {df_va_ie.sum()}, df_va_ie_nuts2.sum() {df_va_ie_nuts2.sum()}')
+    print(f'df_va_mr_disagg_final.sum() {df_va_mr_disagg_final.sum()}, df_va_mr_original_final.sum() {df_va_mr_original_final.sum()}')
+
+    print(f'VA_mr_original[2800:2999].sum() {VA_mr_original[2800:2999].sum()}')
+    print(f'VA_mr_disagg[5400:5999].sum() {VA_mr_disagg[5400:5999].sum()}')
     # %%
     """ Save output disagg data """
 
