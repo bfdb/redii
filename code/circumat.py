@@ -779,7 +779,7 @@ for m, n in zip(country_start, country):
     df_va_mr_original_final = pd.Series(VA_mr_original,
                                         index=mi_idx)
 
-    # test if sum of VA IE is equal to sum of VA IExx NUTS2
+    # test if sum of VA IE is equal to sum of VA IExx NUTS2.
     l_nuts2 = ['IE04', 'IE05', 'IE06']
     df_va_ie = df_va_mr_original_final['IE']
     df_va_ie_nuts2 = df_va_mr_disagg_final[l_nuts2]
