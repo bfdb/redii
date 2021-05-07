@@ -56,6 +56,7 @@ df_a_mr, df_y_mr, df_v_mr = (
                  l_cntr=l_cntr,
                  source='eb')
     )
+
 A_mr = df_a_mr.values
 Y_mr = df_y_mr.values
 B_mr = df_v_mr.values
@@ -67,9 +68,7 @@ B_mr_original = B_mr
 Y_mr_org = Y_mr
 A_mr_org = A_mr
 B_mr_org = B_mr
-
 ###
-# d_eb_proc = rr.read_eb_proc(eb_ver_name)
 # d_eb_cv = d_eb_proc['cV']
 
 # B_mr = np.load(data_folder+"B_v4.npy")
@@ -99,6 +98,13 @@ Z_mr_original = np.dot(A_mr_original, np.array(np.diag(original_X_mr)))
 original_output_product = np.sum(Z_mr_original, axis=1) + np.sum(
     Y_mr_original, axis=1
 )
+
+df_x_mr = pd.Series(X_total_original,
+                    index=df_a_mr.columns)
+
+df_x_mr_diag = pd.DataFrame(np.diag(X_total_original),
+                            index=df_a_mr.columns,
+                            columns=df_a_mr.columns)
 
 VA_mr_original = np.array((original_X_mr) - np.sum(Z_mr_original, axis=0))
 
@@ -809,15 +815,36 @@ for m, n in zip(country_start, country):
                                          columns=mi_idx_nuts2)
     df_x_mr_disagg_final = pd.Series(desired_X_mr_final,
                                      index=mi_idx_nuts2)
+
     df_x_mr_disagg_final_diag = pd.DataFrame(np.diag(desired_X_mr_final),
                                              index=mi_idx_nuts2,
                                              columns=mi_idx_nuts2)
 
+    # test if total output of IE is equal to IExx NUTS2 regions
+    df_x_ie = df_x_mr['IE']
+    l_ie_nuts2 = ['IE04', 'IE05', 'IE06']
+    df_x_ie_nuts2 = df_x_mr_disagg_final[l_ie_nuts2]
+
+    df_x_ie.sum()
+    df_x_ie_nuts2.sum()
+
     d_cv_cat = rr.read_d_cv_cat()
-    df_cva = df_cv_mr_disagg_final.loc[d_cv_cat['va']]
+    df_cva = df_v_mr.loc[d_cv_cat['va']]
+    df_cva_nuts2 = df_cv_mr_disagg_final.loc[d_cv_cat['va']]
     df_cemp = df_cv_mr_disagg_final.loc[d_cv_cat['emp']]
 
-    df_tva = df_cva.dot(df_x_mr_disagg_final)
+    df_tva_diag = df_cva.dot(df_x_mr_diag)
+    df_tva_diag_nuts2 = df_cva_nuts2.dot(df_x_mr_disagg_final_diag)
+
+    df_tva_ie = df_tva_diag['IE']
+    df_tva_ie_nuts2 = df_tva_diag_nuts2[l_ie_nuts2]
+
+    df_tva_ie_s = df_tva_ie.sum().sum()
+    df_tva_ie_nuts2_s = df_tva_ie_nuts2.sum().sum()
+
+    print(f'df_tva_ie_s {df_tva_ie_s}')
+    print(f'df_tva_ie_nuts2_s {df_tva_ie_nuts2_s}')
+
     # df_va_mr_disagg_final = pd.Series(VA_mr_disagg,
     #                                   index=mi_idx_nuts2)
     # df_va_mr_original_final = pd.Series(VA_mr_original,
@@ -833,7 +860,7 @@ for m, n in zip(country_start, country):
     # np.array_equal(b_mr_ie, b_mr_ie_nuts2[:,200:400])
     # np.array_equal(b_mr_ie, b_mr_ie_nuts2[:,400:600])
 
-    # l_nuts2 = ['IE04', 'IE05', 'IE06']
+    # l_ie_nuts2 = ['IE04', 'IE05', 'IE06']
     # df_va_ie = df_va_mr_original_final['IE']
     # df_va_ie_nuts2 = df_va_mr_disagg_final[l_nuts2]
     # print(f'df_va_ie.sum() {df_va_ie.sum()}, ' +
