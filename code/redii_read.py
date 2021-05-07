@@ -274,3 +274,20 @@ def load_data(eb_ver_name, l_cntr, source):
     df_y_mr_cntr = df_y_mr[l_cntr].loc[l_cntr]
     df_v_mr_cntr = df_v_mr[l_cntr]
     return df_a_mr_cntr, df_y_mr_cntr, df_v_mr_cntr
+
+
+def read_d_cv_cat():
+    """ Read socio-economic impact categories.'
+
+    """
+    ut.log('Reading socio-economic impact categories.')
+    dict_impact = {}
+    list_fp_type = ['emp', 'va']
+    for fp_type in list_fp_type:
+        dict_impact[fp_type] = []
+        fp_file_name = cfg.D_FP_FILE_NAME[fp_type]
+        with open(cfg.INPUT_DIR_PATH+fp_file_name) as read_file:
+            csv_file = csv.reader(read_file, delimiter='\t')
+            for row in csv_file:
+                dict_impact[fp_type].append(tuple(row))
+    return dict_impact

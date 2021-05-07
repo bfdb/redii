@@ -119,6 +119,12 @@ CQE_FILE_NAME = 'Q_emission.txt'
 CQM_FILE_NAME = 'Q_material.txt'
 CQR_FILE_NAME = 'Q_resource.txt'
 
+EMP_FP_FILE_NAME = 'list_impact_emp.txt'
+VA_FP_FILE_NAME = 'list_impact_va.txt'
+D_FP_FILE_NAME = {}
+D_FP_FILE_NAME['emp'] = EMP_FP_FILE_NAME
+D_FP_FILE_NAME['va'] = VA_FP_FILE_NAME
+
 LIST_OUTPUT_DIR_PATH = [
     RESULT_TXT_DIR_PATH,
     RESULT_XLSX_DIR_PATH,

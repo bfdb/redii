@@ -51,28 +51,31 @@ if b_incl_uk:
 else:
     l_cntr = cfg.l_eu28exuk_eb
 
-df_a_mr, df_y_mr = (
+df_a_mr, df_y_mr, df_v_mr = (
     rr.load_data(eb_ver_name=eb_ver_name,
                  l_cntr=l_cntr,
                  source='eb')
     )
 A_mr = df_a_mr.values
 Y_mr = df_y_mr.values
+B_mr = df_v_mr.values
 
 A_mr_original = A_mr
 Y_mr_original = Y_mr
+B_mr_original = B_mr
 
 Y_mr_org = Y_mr
 A_mr_org = A_mr
+B_mr_org = B_mr
 
 ###
 # d_eb_proc = rr.read_eb_proc(eb_ver_name)
-# d_eb_cre = d_eb_proc['cRe']
+# d_eb_cv = d_eb_proc['cV']
 
-B_mr = np.load(data_folder+"B_v4.npy")
-B_mr = np.delete(B_mr, np.s_[5400:9800], axis=1)
-B_mr_original = B_mr
-B_mr_org = B_mr
+# B_mr = np.load(data_folder+"B_v4.npy")
+# B_mr = np.delete(B_mr, np.s_[5400:9800], axis=1)
+# B_mr_original = B_mr
+# B_mr_org = B_mr
 ###
 
 # number of countries in the original mrio
@@ -578,7 +581,6 @@ for m, n in zip(country_start, country):
         Zprev_row = Zrows_of_rof - n_sect
         B_mr_disagg[:, new_Zcolumns_of_region2] = B_mr[:, Zrows_of_rof]
 
-
     """
     This was the tricky part. Essentially you have to build the excess demands list of
     each region for each sector before assigning any values.
@@ -788,34 +790,58 @@ for m, n in zip(country_start, country):
     #plt.savefig('Disagg_example.png', dpi = 300, bbox_inches='tight')
     plt.show()
     """
+    B_mr_disagg_final = B_mr_disagg
 
     # add labels to data
     mi_y_col = pd.MultiIndex.from_tuples(l_y_col)
     mi_idx_nuts2 = pd.MultiIndex.from_tuples(l_idx_nuts2)
     mi_idx = pd.MultiIndex.from_tuples(l_idx)
+    mi_v = df_v_mr.index
 
     df_a_mr_disagg_final = pd.DataFrame(A_mr_disagg_final,
-                                        index=mi_idx_nuts2, columns=mi_idx_nuts2)
+                                        index=mi_idx_nuts2,
+                                        columns=mi_idx_nuts2)
     df_y_mr_disagg_final = pd.DataFrame(Y_mr_disagg_final,
-                                        index=mi_idx_nuts2, columns=mi_y_col)
-    df_va_mr_disagg_final = pd.Series(VA_mr_disagg,
-                                      index=mi_idx_nuts2)
-    df_va_mr_original_final = pd.Series(VA_mr_original,
-                                        index=mi_idx)
+                                        index=mi_idx_nuts2,
+                                        columns=mi_y_col)
+    df_cv_mr_disagg_final = pd.DataFrame(B_mr_disagg_final,
+                                         index=mi_v,
+                                         columns=mi_idx_nuts2)
+    df_x_mr_disagg_final = pd.Series(desired_X_mr_final,
+                                     index=mi_idx_nuts2)
+    df_x_mr_disagg_final_diag = pd.DataFrame(np.diag(desired_X_mr_final),
+                                             index=mi_idx_nuts2,
+                                             columns=mi_idx_nuts2)
+
+    d_cv_cat = rr.read_d_cv_cat()
+    df_cva = df_cv_mr_disagg_final.loc[d_cv_cat['va']]
+    df_cemp = df_cv_mr_disagg_final.loc[d_cv_cat['emp']]
+
+    df_tva = df_cva.dot(df_x_mr_disagg_final)
+    # df_va_mr_disagg_final = pd.Series(VA_mr_disagg,
+    #                                   index=mi_idx_nuts2)
+    # df_va_mr_original_final = pd.Series(VA_mr_original,
+    #                                     index=mi_idx)
 
     # test if sum of VA IE is equal to sum of VA IExx NUTS2.
+    # df_v_ie = df_v_mr['IE']
+    # b_mr_ie = B_mr_original[:, 2800:3000]
+    # b_mr_ie_nuts2 = B_mr_disagg_final[:, 5400:6000]
 
-    B_mr_original[:, 2800:3000].sum()
-    B_mr_disagg_final[:, 5800:6000].sum()
+    # np.array_equal(df_v_ie, b_mr_ie)
+    # np.array_equal(b_mr_ie, b_mr_ie_nuts2[:,0:200])
+    # np.array_equal(b_mr_ie, b_mr_ie_nuts2[:,200:400])
+    # np.array_equal(b_mr_ie, b_mr_ie_nuts2[:,400:600])
 
-    l_nuts2 = ['IE04', 'IE05', 'IE06']
-    df_va_ie = df_va_mr_original_final['IE']
-    df_va_ie_nuts2 = df_va_mr_disagg_final[l_nuts2]
-    print(f'df_va_ie.sum() {df_va_ie.sum()}, df_va_ie_nuts2.sum() {df_va_ie_nuts2.sum()}')
-    print(f'df_va_mr_disagg_final.sum() {df_va_mr_disagg_final.sum()}, df_va_mr_original_final.sum() {df_va_mr_original_final.sum()}')
-
-    print(f'VA_mr_original[2800:2999].sum() {VA_mr_original[2800:2999].sum()}')
-    print(f'VA_mr_disagg[5400:5999].sum() {VA_mr_disagg[5400:5999].sum()}')
+    # l_nuts2 = ['IE04', 'IE05', 'IE06']
+    # df_va_ie = df_va_mr_original_final['IE']
+    # df_va_ie_nuts2 = df_va_mr_disagg_final[l_nuts2]
+    # print(f'df_va_ie.sum() {df_va_ie.sum()}, ' +
+    #       f'df_va_ie_nuts2.sum() {df_va_ie_nuts2.sum()}')
+    # print(f'df_va_mr_disagg_final.sum() {df_va_mr_disagg_final.sum()}, ' +
+    #       f'df_va_mr_original_final.sum() {df_va_mr_original_final.sum()}')
+    # print(f'VA_mr_original[2800:2999].sum() {VA_mr_original[2800:2999].sum()}')
+    # print(f'VA_mr_disagg[5400:5999].sum() {VA_mr_disagg[5400:5999].sum()}')
     # %%
     """ Save output disagg data """
 
