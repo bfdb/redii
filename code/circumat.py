@@ -65,6 +65,16 @@ Y_mr_original = Y_mr
 Y_mr_org = Y_mr
 A_mr_org = A_mr
 
+###
+# d_eb_proc = rr.read_eb_proc(eb_ver_name)
+# d_eb_cre = d_eb_proc['cRe']
+
+B_mr = np.load(data_folder+"B_v4.npy")
+B_mr = np.delete(B_mr, np.s_[5400:9800], axis=1)
+B_mr_original = B_mr
+B_mr_org = B_mr
+###
+
 # number of countries in the original mrio
 n_c = Y_mr.shape[1] / n_y  # number of countries in the original mrio
 n_c = int(n_c)
@@ -74,6 +84,9 @@ n_s = int(n_s)
 n_v = 1  # number of diferent parts in the va
 n_v = int(n_v)
 n_r = 2  # this is always two, we will divide region into two parts
+
+n_b = B_mr.shape[0]  # number of environmental indicators
+n_b = int(n_b)
 
 L_mr_original = np.linalg.inv(np.identity(n_s * (n_c)) - A_mr_original)
 X_total_original = np.dot(L_mr_original, np.sum(Y_mr_original, axis=1))
@@ -146,6 +159,11 @@ for m, n in zip(country_start, country):
                 np.array(range(0, n_c_org * n_s))[:, None],
                 np.array(range(0, n_c_org * n_s)),
             ] = A_mr_original
+
+            B_mr = B_mr_disagg
+            B_mr[
+                np.array(range(0, n_b))[:, None], np.array(range(0, n_c_org * n_s))
+            ] = B_mr_original
 
             n_c = Y_mr.shape[1] / n_y  # number of countries in the original mrio
             n_c = int(n_c)
@@ -555,6 +573,12 @@ for m, n in zip(country_start, country):
         Reg_emp_total.append(reg_emp_share[1])
         Excess_demand_list.append(excess_demand)
 
+        B_mr_disagg = np.zeros((n_b, (n_c + 1) * n_s))
+        B_mr_disagg[:, np.array(range(0, (n_c) * n_s))] = B_mr
+        Zprev_row = Zrows_of_rof - n_sect
+        B_mr_disagg[:, new_Zcolumns_of_region2] = B_mr[:, Zrows_of_rof]
+
+
     """
     This was the tricky part. Essentially you have to build the excess demands list of
     each region for each sector before assigning any values.
@@ -780,6 +804,10 @@ for m, n in zip(country_start, country):
                                         index=mi_idx)
 
     # test if sum of VA IE is equal to sum of VA IExx NUTS2.
+
+    B_mr_original[:, 2800:3000].sum()
+    B_mr_disagg_final[:, 5800:6000].sum()
+
     l_nuts2 = ['IE04', 'IE05', 'IE06']
     df_va_ie = df_va_mr_original_final['IE']
     df_va_ie_nuts2 = df_va_mr_disagg_final[l_nuts2]

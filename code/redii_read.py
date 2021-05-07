@@ -255,6 +255,7 @@ def load_data(eb_ver_name, l_cntr, source):
         # use exiobase data.
         df_a_mr = d_eb_proc['cA']
         df_y_mr = d_eb_proc['tY']
+        df_v_mr = d_eb_proc['cV']
 
     elif source == 'cm':
         # use circumat data.
@@ -271,5 +272,5 @@ def load_data(eb_ver_name, l_cntr, source):
 
     df_a_mr_cntr = df_a_mr[l_cntr].loc[l_cntr]
     df_y_mr_cntr = df_y_mr[l_cntr].loc[l_cntr]
-
-    return df_a_mr_cntr, df_y_mr_cntr
+    df_v_mr_cntr = df_v_mr[l_cntr]
+    return df_a_mr_cntr, df_y_mr_cntr, df_v_mr_cntr
