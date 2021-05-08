@@ -32,11 +32,15 @@ data_folder = cfg.INPUT_DIR_PATH+'cm/'
 # Choose pxp or ixi, and incl. or excl. UK.
 # To reproduce circumat: pxp and excl. uk, for redii: ixi and incl. uk.
 
-# eb_ver = 'pxp'
-# b_incl_uk = False
+eb_ver = 'pxp'
+reg = 'world'
+# reg = 'eu28'
+# reg = 'eu28exuk'
 
-eb_ver = 'ixi'
-b_incl_uk = True
+# eb_ver = 'ixi'
+# reg = 'world'
+# reg = 'eu28'
+# reg = 'eu28exuk'
 
 if eb_ver == 'ixi':
     eb_ver_name = cfg.T_EB_IXI_FPA_3_3_2011_PROC
@@ -46,10 +50,16 @@ elif eb_ver == 'pxp':
     eb_ver_name = cfg.T_EB_PXP_ITA_3_3_2011_PROC
     n_sect = n_prod
 
-if b_incl_uk:
+if reg == 'world':
+    l_cntr = cfg.l_wrld
+elif reg == 'eu28':
     l_cntr = cfg.l_eu28_eb
-else:
+elif reg == 'eu28exuk':
     l_cntr = cfg.l_eu28exuk_eb
+
+###
+# l_cntr = ['IE']
+###
 
 df_a_mr, df_y_mr, df_v_mr = (
     rr.load_data(eb_ver_name=eb_ver_name,
@@ -377,12 +387,40 @@ for m, n in zip(country_start, country):
         # find the rows and column indices of the country in the exiobase in py
         # (ie index starts from 0)
         # changed calculation to accomodate for inclusion of UK
-        Zcolumns_of_rof = np.array(range(df_a_mr.columns.get_loc(n).start,
-                                         df_a_mr.columns.get_loc(n).stop))
-        Ycolumns_of_rof = np.array(range(df_y_mr.columns.get_loc(n).start,
-                                         df_y_mr.columns.get_loc(n).stop))
-        Zrows_of_rof = np.array(range(df_a_mr.index.get_loc(n).start,
-                                      df_a_mr.index.get_loc(n).stop))
+        l_a_cntr_col = df_a_mr.columns.get_loc(n)
+        l_y_cntr_col = df_y_mr.columns.get_loc(n)
+        l_a_cntr_idx = df_a_mr.index.get_loc(n)
+        if type(l_a_cntr_col) == np.ndarray:
+            a_cntr_col_start = l_a_cntr_col.nonzero()[0][0]
+            a_cntr_col_stop = l_a_cntr_col.nonzero()[0][-1]+1
+
+            y_cntr_col_start = l_y_cntr_col.nonzero()[0][0]
+            y_cntr_col_stop = l_y_cntr_col.nonzero()[0][-1]+1
+
+            a_cntr_idx_start = l_a_cntr_idx.nonzero()[0][0]
+            a_cntr_idx_stop = l_a_cntr_idx.nonzero()[0][-1]+1
+
+        elif type(l_a_cntr_col) == slice:
+            a_cntr_col_start = df_a_mr.columns.get_loc(n).start
+            a_cntr_col_stop = df_a_mr.columns.get_loc(n).stop
+
+            y_cntr_col_start = df_y_mr.columns.get_loc(n).start
+            y_cntr_col_stop = df_y_mr.columns.get_loc(n).stop
+
+            a_cntr_idx_start = df_a_mr.index.get_loc(n).start
+            a_cntr_idx_stop = df_a_mr.index.get_loc(n).stop
+        # Zcolumns_of_rof = np.array(range(df_a_mr.columns.get_loc(n).start,
+        #                                  df_a_mr.columns.get_loc(n).stop))
+        # Ycolumns_of_rof = np.array(range(df_y_mr.columns.get_loc(n).start,
+        #                                  df_y_mr.columns.get_loc(n).stop))
+        # Zrows_of_rof = np.array(range(df_a_mr.index.get_loc(n).start,
+        #                               df_a_mr.index.get_loc(n).stop))
+        Zcolumns_of_rof = np.array(range(a_cntr_col_start,
+                                         a_cntr_col_stop))
+        Ycolumns_of_rof = np.array(range(y_cntr_col_start,
+                                         y_cntr_col_stop))
+        Zrows_of_rof = np.array(range(a_cntr_idx_start,
+                                      a_cntr_idx_stop))
 
         """
         The second partion of this code focuses on building the new regional matrix
@@ -904,32 +942,33 @@ for m, n in zip(country_start, country):
     print("VA Disagg:", np.sum(VA_mr_disagg))
     print("VA Original:", np.sum(VA_mr_original))
 
-    # Read value added in prices from baseline and EUCO3232.5.
-    df_va_p_2030_base = rr.read_va_yr(
-        cfg.DATA_SHARE_DIR_PATH + cfg.EXIOMOD_DIR_PATH + cfg.file_name_base_eu28,
-        cfg.var_name_va_p_new,
-        cfg.yr_end,
-    )
+    if eb_ver == 'ixi':
+        # Read value added in prices from baseline and EUCO3232.5.
+        df_va_p_2030_base = rr.read_va_yr(
+            cfg.DATA_SHARE_DIR_PATH + cfg.EXIOMOD_DIR_PATH + cfg.file_name_base_eu28,
+            cfg.var_name_va_p_new,
+            cfg.yr_end,
+        )
 
-    # Aggregate sectors to EXIOMOD classification
-    df_eb_ind_code2em_ind_agg = pd.read_csv(cfg.INPUT_DIR_PATH +
-                                            cfg.EB_IND_CODE2EM_IND_AGG_FILE_NAME,
-                                            sep='\t',
-                                            index_col=[0, 1],
-                                            header=[0])
-    df_eb_ind_code2em_ind_agg = df_eb_ind_code2em_ind_agg.droplevel(axis=0, level=0)
+        # Aggregate sectors to EXIOMOD classification
+        df_eb_ind_code2em_ind_agg = pd.read_csv(cfg.INPUT_DIR_PATH +
+                                                cfg.EB_IND_CODE2EM_IND_AGG_FILE_NAME,
+                                                sep='\t',
+                                                index_col=[0, 1],
+                                                header=[0])
+        df_eb_ind_code2em_ind_agg = df_eb_ind_code2em_ind_agg.droplevel(axis=0, level=0)
 
-    df_x_ie_em = df_x_ie.dot(df_eb_ind_code2em_ind_agg)
-    df_x_ie_nuts2_em = df_x_ie_nuts2.unstack().dot(df_eb_ind_code2em_ind_agg)
+        df_x_ie_em = df_x_ie.dot(df_eb_ind_code2em_ind_agg)
+        df_x_ie_nuts2_em = df_x_ie_nuts2.unstack().dot(df_eb_ind_code2em_ind_agg)
 
-    df_x_ie_nuts2_em_rel = df_x_ie_nuts2_em.divide(df_x_ie_em)
-    df_x_ie_nuts2_em_rel.fillna(0, inplace=True)
+        df_x_ie_nuts2_em_rel = df_x_ie_nuts2_em.divide(df_x_ie_em)
+        df_x_ie_nuts2_em_rel.fillna(0, inplace=True)
 
-    df_va_p_2030_base_ie = df_va_p_2030_base['EU28_IE']
+        df_va_p_2030_base_ie = df_va_p_2030_base['EU28_IE']
 
-    df_x_ie_nuts2_em_rel = df_x_ie_nuts2_em_rel[df_va_p_2030_base_ie.index]
-    df_va_p_2030_base_ie_diag = pd.DataFrame(np.diag(df_va_p_2030_base_ie),
-                                             index=df_va_p_2030_base_ie.index,
-                                             columns=df_va_p_2030_base_ie.index)
+        df_x_ie_nuts2_em_rel = df_x_ie_nuts2_em_rel[df_va_p_2030_base_ie.index]
+        df_va_p_2030_base_ie_diag = pd.DataFrame(np.diag(df_va_p_2030_base_ie),
+                                                 index=df_va_p_2030_base_ie.index,
+                                                 columns=df_va_p_2030_base_ie.index)
 
-    df_va_p_2030_base_ie_nuts2 = df_x_ie_nuts2_em_rel.dot(df_va_p_2030_base_ie_diag)
+        df_va_p_2030_base_ie_nuts2 = df_x_ie_nuts2_em_rel.dot(df_va_p_2030_base_ie_diag)

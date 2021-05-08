@@ -255,6 +255,11 @@ with open(INPUT_DIR_PATH + cntr_exio2globiom_file_name, "r") as read_file:
 
 l_eu04 = ["EUN", "EUE", "EUS", "EUW"]
 
+l_wrld = ['AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR', 'GR', 'HR',
+          'HU', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI',
+          'SK', 'GB', 'US', 'JP', 'CN', 'CA', 'KR', 'BR', 'IN', 'MX', 'RU', 'AU', 'CH',
+          'TR', 'TW', 'NO', 'ID', 'ZA', 'WA', 'WL', 'WE', 'WF', 'WM']
+
 l_eu28 = [
     "EU28_AT",
     "EU28_BE",
