@@ -824,10 +824,13 @@ for m, n in zip(country_start, country):
     df_x_ie = df_x_mr['IE']
     l_ie_nuts2 = ['IE04', 'IE05', 'IE06']
     df_x_ie_nuts2 = df_x_mr_disagg_final[l_ie_nuts2]
+    df_x_ie_nuts2_rel = df_x_ie_nuts2.divide(df_x_ie, level=1, fill_value=0)
+    df_x_ie_nuts2_rel = df_x_ie_nuts2_rel.fillna(0)
 
     df_x_ie.sum()
     df_x_ie_nuts2.sum()
 
+    # test if disagg of total output == disagg of VA through satellite accounts
     d_cv_cat = rr.read_d_cv_cat()
     df_cva = df_v_mr.loc[d_cv_cat['va']]
     df_cva_nuts2 = df_cv_mr_disagg_final.loc[d_cv_cat['va']]
@@ -838,13 +841,22 @@ for m, n in zip(country_start, country):
 
     df_tva_ie = df_tva_diag['IE']
     df_tva_ie_nuts2 = df_tva_diag_nuts2[l_ie_nuts2]
+    df_tva_ie_nuts2_rel = df_tva_ie_nuts2.divide(df_tva_ie, level=1, fill_value=0)
+    df_tva_ie_nuts2_rel = df_tva_ie_nuts2_rel.fillna(0)
 
-    df_tva_ie_s = df_tva_ie.sum().sum()
-    df_tva_ie_nuts2_s = df_tva_ie_nuts2.sum().sum()
+    df_tva_ie_s = df_tva_ie.sum()
+    df_tva_ie_ss = df_tva_ie_s.sum()
 
-    print(f'df_tva_ie_s {df_tva_ie_s}')
-    print(f'df_tva_ie_nuts2_s {df_tva_ie_nuts2_s}')
+    df_tva_ie_nuts2_s = df_tva_ie_nuts2.sum()
+    df_tva_ie_nuts2_ss = df_tva_ie_nuts2_s.sum()
 
+    df_tva_ie_nuts2_s_rel = df_tva_ie_nuts2_s.divide(df_tva_ie_s, level=1, fill_value=0)
+    df_tva_ie_nuts2_s_rel = df_tva_ie_nuts2_s_rel.fillna(0)
+
+    print(f'df_tva_ie_ss {df_tva_ie_ss}')
+    print(f'df_tva_ie_nuts2_ss {df_tva_ie_nuts2_ss}')
+
+    print(f'{np.allclose(df_x_ie_nuts2_rel, df_tva_ie_nuts2_s_rel)}')
     # df_va_mr_disagg_final = pd.Series(VA_mr_disagg,
     #                                   index=mi_idx_nuts2)
     # df_va_mr_original_final = pd.Series(VA_mr_original,
