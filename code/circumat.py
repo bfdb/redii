@@ -4,7 +4,7 @@ Created on Tue Feb 18 14:04:16 2020
 
 @author: navarrenhn
 """
-# from memory_profiler import profile
+from memory_profiler import profile
 
 import numpy as np
 import pandas as pd
@@ -18,7 +18,12 @@ import redii_read as rr
 import utils as ut
 
 
-# @profile
+def calc_x(ar_a, ar_y):
+    ar_l = np.linalg.inv(np.identity(len(ar_a)) - ar_a)
+    return np.dot(ar_l, np.sum(ar_y, axis=1))
+
+
+@profile
 def main():
     ut.makedirs()
 
@@ -37,9 +42,9 @@ def main():
     # To reproduce circumat: pxp and excl. uk, for redii: ixi and incl. uk.
 
     eb_ver = 'pxp'
-    reg = 'world'
+    # reg = 'world'
     # reg = 'eu28'
-    # reg = 'eu28exuk'
+    reg = 'eu28exuk'
 
     # eb_ver = 'ixi'
     # reg = 'world'
@@ -104,11 +109,12 @@ def main():
     n_b = B_mr.shape[0]  # number of environmental indicators
     n_b = int(n_b)
 
-    L_mr_original = np.linalg.inv(np.identity(n_s * (n_c)) - A_mr_original)
-    X_total_original = np.dot(L_mr_original, np.sum(Y_mr_original, axis=1))
+    # L_mr_original = np.linalg.inv(np.identity(n_s * (n_c)) - A_mr_original)
+    # X_total_original = np.dot(L_mr_original, np.sum(Y_mr_original, axis=1))
+    X_total_original = calc_x(A_mr_original, Y_mr_original)
 
-    original_X_mr = np.dot(L_mr_original, np.sum(Y_mr_original, axis=1))
-    Z_mr_original = np.dot(A_mr_original, np.array(np.diag(original_X_mr)))
+    # original_X_mr = np.dot(L_mr_original, np.sum(Y_mr_original, axis=1))
+    Z_mr_original = np.dot(A_mr_original, np.array(np.diag(X_total_original)))
     original_output_product = np.sum(Z_mr_original, axis=1) + np.sum(
         Y_mr_original, axis=1
     )
@@ -120,7 +126,7 @@ def main():
                                 index=df_a_mr.columns,
                                 columns=df_a_mr.columns)
 
-    VA_mr_original = np.array((original_X_mr) - np.sum(Z_mr_original, axis=0))
+    VA_mr_original = np.array((X_total_original) - np.sum(Z_mr_original, axis=0))
 
     # list including the table for country and its subnational details
     regions = pd.read_excel(data_folder+"circumat_regions_v3.xls")
@@ -433,9 +439,10 @@ def main():
             the previously disaggregated regions.
             """
             # calculate the leontief
-            L_mr = np.linalg.inv(np.identity(n_s * n_c) - A_mr)
+            # L_mr = np.linalg.inv(np.identity(n_s * n_c) - A_mr)
+            # X_total = np.dot(L_mr, np.sum(Y_mr, axis=1))
+            X_total = calc_x(A_mr, Y_mr)
 
-            X_total = np.dot(L_mr, np.sum(Y_mr, axis=1))
             X_total[range(0, n_c_org * n_s)] = X_total_original
             Z_mr = np.dot(A_mr, np.diag(X_total))
 
@@ -751,8 +758,9 @@ def main():
         Y_check = Y_checks.sum(axis=1)
 
         """ Calculate the final final output product """
-        L_mr_disagg_final = np.linalg.inv(np.identity(n_s * (n_c)) - A_mr_disagg_final)
-        desired_X_mr_final = np.dot(L_mr_disagg_final, np.sum(Y_mr_disagg_final, axis=1))
+        # L_mr_disagg_final = np.linalg.inv(np.identity(n_s * (n_c)) - A_mr_disagg_final)
+        # desired_X_mr_final = np.dot(L_mr_disagg_final, np.sum(Y_mr_disagg_final, axis=1))
+        desired_X_mr_final = calc_x(A_mr_disagg_final, Y_mr_disagg_final)
         Z_mr_disagg_final = np.dot(A_mr_disagg_final, np.array(np.diag(desired_X_mr_final)))
         final_output_product_disagg = np.sum(Z_mr_disagg_final, axis=1) + np.sum(
             Y_mr_disagg_final, axis=1
@@ -810,18 +818,19 @@ def main():
 
         # Consumer Based Emissions
         VA_mr_disagg = np.array((desired_X_mr_final - np.sum(Z_mr_disagg_final, axis=1)))
-        final_input_mr_disagg = np.sum(Z_mr_disagg_final, axis=0) + VA_mr_disagg
+        # final_input_mr_disagg = np.sum(Z_mr_disagg_final, axis=0) + VA_mr_disagg
 
-        for i, j, z in zip(
-            range(n_c_org * n_s, (n_c * n_s), n_sect),
-            Region_data,
-            range(n_c_org * n_y, n_y * n_c, 7),
-        ):
+    # not needed?
+        # for i, j, z in zip(
+        #     range(n_c_org * n_s, (n_c * n_s), n_sect),
+        #     Region_data,
+        #     range(n_c_org * n_y, n_y * n_c, 7),
+        # ):
 
-            y_NUTS2 = np.array(np.zeros((n_c * n_s, n_y)))
-            y_NUTS2 = Y_mr_disagg[:, np.array(range(z, z + 7))]
-            y_NUTS2 = y_NUTS2
-            mtemp = np.dot(L_mr_disagg_final, np.diag(np.sum(y_NUTS2, axis=1)))
+        #     y_NUTS2 = np.array(np.zeros((n_c * n_s, n_y)))
+        #     y_NUTS2 = Y_mr_disagg[:, np.array(range(z, z + 7))]
+        #     y_NUTS2 = y_NUTS2
+        #     mtemp = np.dot(L_mr_disagg_final, np.diag(np.sum(y_NUTS2, axis=1)))
 
         """ Plotting """
         """
@@ -858,71 +867,20 @@ def main():
         df_x_mr_disagg_final = pd.Series(desired_X_mr_final,
                                          index=mi_idx_nuts2)
 
-        df_x_mr_disagg_final_diag = pd.DataFrame(np.diag(desired_X_mr_final),
-                                                 index=mi_idx_nuts2,
-                                                 columns=mi_idx_nuts2)
+        # df_x_mr_disagg_final_diag = pd.DataFrame(np.diag(desired_X_mr_final),
+        #                                          index=mi_idx_nuts2,
+        #                                          columns=mi_idx_nuts2)
 
         # test if total output of IE is equal to IExx NUTS2 regions
         df_x_ie = df_x_mr['IE']
         l_ie_nuts2 = ['IE04', 'IE05', 'IE06']
         df_x_ie_nuts2 = df_x_mr_disagg_final[l_ie_nuts2]
-        df_x_ie_nuts2_rel = df_x_ie_nuts2.divide(df_x_ie, level=1)
-        df_x_ie_nuts2_rel = df_x_ie_nuts2_rel.fillna(0)
+        # df_x_ie_nuts2_rel = df_x_ie_nuts2.divide(df_x_ie, level=1)
+        # df_x_ie_nuts2_rel = df_x_ie_nuts2_rel.fillna(0)
 
-        df_x_ie.sum()
-        df_x_ie_nuts2.sum()
+        # df_x_ie.sum()
+        # df_x_ie_nuts2.sum()
 
-        # test if disagg of total output == disagg of VA through satellite accounts
-        d_cv_cat = rr.read_d_cv_cat()
-        df_cva = df_v_mr.loc[d_cv_cat['va']]
-        df_cva_nuts2 = df_cv_mr_disagg_final.loc[d_cv_cat['va']]
-        df_cemp = df_cv_mr_disagg_final.loc[d_cv_cat['emp']]
-
-        df_tva_diag = df_cva.dot(df_x_mr_diag)
-        df_tva_diag_nuts2 = df_cva_nuts2.dot(df_x_mr_disagg_final_diag)
-
-        df_tva_ie = df_tva_diag['IE']
-        df_tva_ie_nuts2 = df_tva_diag_nuts2[l_ie_nuts2]
-        df_tva_ie_nuts2_rel = df_tva_ie_nuts2.divide(df_tva_ie, level=1)
-        df_tva_ie_nuts2_rel.fillna(0, inplace=True)
-
-        df_tva_ie_s = df_tva_ie.sum()
-        df_tva_ie_ss = df_tva_ie_s.sum()
-
-        df_tva_ie_nuts2_s = df_tva_ie_nuts2.sum()
-        df_tva_ie_nuts2_ss = df_tva_ie_nuts2_s.sum()
-
-        df_tva_ie_nuts2_s_rel = df_tva_ie_nuts2_s.divide(df_tva_ie_s, level=1)
-        df_tva_ie_nuts2_s_rel.fillna(0, inplace=True)
-
-        print(f'df_tva_ie_ss {df_tva_ie_ss}')
-        print(f'df_tva_ie_nuts2_ss {df_tva_ie_nuts2_ss}')
-
-        print(f'{np.allclose(df_x_ie_nuts2_rel, df_tva_ie_nuts2_s_rel)}')
-        # df_va_mr_disagg_final = pd.Series(VA_mr_disagg,
-        #                                   index=mi_idx_nuts2)
-        # df_va_mr_original_final = pd.Series(VA_mr_original,
-        #                                     index=mi_idx)
-
-        # test if sum of VA IE is equal to sum of VA IExx NUTS2.
-        # df_v_ie = df_v_mr['IE']
-        # b_mr_ie = B_mr_original[:, 2800:3000]
-        # b_mr_ie_nuts2 = B_mr_disagg_final[:, 5400:6000]
-
-        # np.array_equal(df_v_ie, b_mr_ie)
-        # np.array_equal(b_mr_ie, b_mr_ie_nuts2[:,0:200])
-        # np.array_equal(b_mr_ie, b_mr_ie_nuts2[:,200:400])
-        # np.array_equal(b_mr_ie, b_mr_ie_nuts2[:,400:600])
-
-        # l_ie_nuts2 = ['IE04', 'IE05', 'IE06']
-        # df_va_ie = df_va_mr_original_final['IE']
-        # df_va_ie_nuts2 = df_va_mr_disagg_final[l_nuts2]
-        # print(f'df_va_ie.sum() {df_va_ie.sum()}, ' +
-        #       f'df_va_ie_nuts2.sum() {df_va_ie_nuts2.sum()}')
-        # print(f'df_va_mr_disagg_final.sum() {df_va_mr_disagg_final.sum()}, ' +
-        #       f'df_va_mr_original_final.sum() {df_va_mr_original_final.sum()}')
-        # print(f'VA_mr_original[2800:2999].sum() {VA_mr_original[2800:2999].sum()}')
-        # print(f'VA_mr_disagg[5400:5999].sum() {VA_mr_disagg[5400:5999].sum()}')
         # %%
         """ Save output disagg data """
 
