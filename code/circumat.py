@@ -50,22 +50,23 @@ def main():
     # Choose pxp or ixi, and incl. or excl. UK.
     # To reproduce circumat: pxp and excl. uk, for redii: ixi and incl. uk.
 
-    eb_ver = 'pxp'
-    # reg = 'world'
-    # reg = 'eu28'
-    reg = 'eu28exuk'
-
+    # eb_ver = 'pxp'
     # eb_ver = 'ixi'
-    # reg = 'world'
+
+    reg = 'world'
     # reg = 'eu28'
     # reg = 'eu28exuk'
+    # reg = 'IE'
 
-    if eb_ver == 'ixi':
-        eb_ver_name = cfg.T_EB_IXI_FPA_3_3_2011_PROC
+    source = 'eb_ixi'
+    # source = 'eb_pxp'
+    # source = 'cm'
+
+    if source == 'eb_ixi':
         n_sect = n_ind
-
-    elif eb_ver == 'pxp':
-        eb_ver_name = cfg.T_EB_PXP_ITA_3_3_2011_PROC
+    elif source == 'eb_pxp':
+        n_sect = n_prod
+    elif source == 'cm':
         n_sect = n_prod
 
     if reg == 'world':
@@ -74,15 +75,12 @@ def main():
         l_cntr = cfg.l_eu28_eb
     elif reg == 'eu28exuk':
         l_cntr = cfg.l_eu28exuk_eb
-
-    ###
-    # l_cntr = ['IE']
-    ###
+    elif reg == 'IE':
+        l_cntr = ['IE']
 
     df_a_mr, df_y_mr, df_v_mr = (
-        rr.load_data(eb_ver_name=eb_ver_name,
-                     l_cntr=l_cntr,
-                     source='eb')
+        rr.load_data(source=source,
+                     l_cntr=l_cntr)
         )
 
     A_mr = df_a_mr.values
@@ -93,17 +91,9 @@ def main():
     Y_mr_original = Y_mr
     B_mr_original = B_mr
 
-    Y_mr_org = Y_mr
-    A_mr_org = A_mr
-    B_mr_org = B_mr
-    ###
-    # d_eb_cv = d_eb_proc['cV']
-
-    # B_mr = np.load(data_folder+"B_v4.npy")
-    # B_mr = np.delete(B_mr, np.s_[5400:9800], axis=1)
-    # B_mr_original = B_mr
+    # Y_mr_org = Y_mr
+    # A_mr_org = A_mr
     # B_mr_org = B_mr
-    ###
 
     # number of countries in the original mrio
     n_c = Y_mr.shape[1] / n_y  # number of countries in the original mrio
@@ -118,31 +108,10 @@ def main():
     n_b = B_mr.shape[0]  # number of environmental indicators
     n_b = int(n_b)
 
-    # L_mr_original = np.linalg.inv(np.identity(n_s * (n_c)) - A_mr_original)
-    # X_total_original = np.dot(L_mr_original, np.sum(Y_mr_original, axis=1))
     X_total_original = calc_x(A_mr_original, Y_mr_original)
-
-    # original_X_mr = np.dot(L_mr_original, np.sum(Y_mr_original, axis=1))
-    # Z_mr_original = np.dot(A_mr_original, np.array(np.diag(X_total_original)))
-
-    # Z_mr_original_s_in = calc_z_s_in(A_mr_original, X_total_original)
-    # Z_mr_original_s_out = calc_z_s_out(A_mr_original, X_total_original)
-
-    Z_mr_original_s_in, Z_mr_original_s_out = calc_z_s(A_mr_original, X_total_original)
-
-    original_output_product = Z_mr_original_s_out + np.sum(
-        Y_mr_original, axis=1
-    )
-
-    # original_output_product = np.sum(Z_mr_original, axis=1) + np.sum(
-    #     Y_mr_original, axis=1
-    # )
 
     df_x_mr = pd.Series(X_total_original,
                         index=df_a_mr.columns)
-
-    # VA_mr_original = np.array((X_total_original) - np.sum(Z_mr_original, axis=0))
-    VA_mr_original = np.array((X_total_original) - Z_mr_original_s_in)
 
     # list including the table for country and its subnational details
     regions = pd.read_excel(data_folder+"circumat_regions_v3.xls")
@@ -155,7 +124,6 @@ def main():
     # conversion of the sectors in eurostat to exiobase starts..
     # for sbs
     conversion_matrix = pd.read_excel(
-        # data_folder + "SBS_MATCH.xlsx", sheet_name="matrix", header=None
         data_folder + "SBS_MATCH.xls",
         sheet_name="matrix",
         header=None,
@@ -182,11 +150,11 @@ def main():
         # get labels of sectors (either product or index, depending on pxp or ixi)
         l_sect = list(df_y_mr.loc[n].index)
 
-        # this list will be used to recover the individual X_rr arrays of each region
-        # when calculating everything at once.
-        X_rr_list = (
-            []
-        )
+        # # this list will be used to recover the individual X_rr arrays of each region
+        # # when calculating everything at once.
+        # X_rr_list = (
+        #     []
+        # )
         id_prev = 0
         Region_data = defaultdict(list)
         Reg_exp_total = []
@@ -375,7 +343,7 @@ def main():
             )
 
             # if ixi, multiply with concordance matrix from pxp to ixi.
-            if eb_ver == 'ixi':
+            if source == 'eb_ixi':
                 df_eb_pxp2ixi = pd.read_csv(cfg.INPUT_DIR_PATH+cfg.file_name_eb_pxp2ixi,
                                             sep='\t',
                                             header=[0],
@@ -438,12 +406,6 @@ def main():
 
                 a_cntr_idx_start = df_a_mr.index.get_loc(n).start
                 a_cntr_idx_stop = df_a_mr.index.get_loc(n).stop
-            # Zcolumns_of_rof = np.array(range(df_a_mr.columns.get_loc(n).start,
-            #                                  df_a_mr.columns.get_loc(n).stop))
-            # Ycolumns_of_rof = np.array(range(df_y_mr.columns.get_loc(n).start,
-            #                                  df_y_mr.columns.get_loc(n).stop))
-            # Zrows_of_rof = np.array(range(df_a_mr.index.get_loc(n).start,
-            #                               df_a_mr.index.get_loc(n).stop))
             Zcolumns_of_rof = np.array(range(a_cntr_col_start,
                                              a_cntr_col_stop))
             Ycolumns_of_rof = np.array(range(y_cntr_col_start,
@@ -458,33 +420,23 @@ def main():
             include the previously disaggregated regions.
             """
             # calculate the leontief
-            # L_mr = np.linalg.inv(np.identity(n_s * n_c) - A_mr)
-            # X_total = np.dot(L_mr, np.sum(Y_mr, axis=1))
-            X_total = calc_x(A_mr, Y_mr)
+            # X_total = calc_x(A_mr, Y_mr)
 
-            X_total[range(0, n_c_org * n_s)] = X_total_original
-            # Z_mr = np.dot(A_mr, np.diag(X_total))
+            # X_total[range(0, n_c_org * n_s)] = X_total_original
 
-            Z_mr_s_in, Z_mr_s_out = calc_z_s(A_mr, X_total)
-            # Z_mr_s_out = calc_z_s_out(A_mr, X_total)
-            # Z_mr_s_in = calc_z_s_in(A_mr, X_total)
-
-            # check whether this is correct.  this sum should be zero
-            # X_check = np.sum(Z_mr, axis=1) + np.sum(Y_mr, axis=1) - X_total
-            X_check = Z_mr_s_out + np.sum(Y_mr, axis=1) - X_total
-
-            X_rof = X_total[Zrows_of_rof]
+            # X_rof = X_total[Zrows_of_rof]
+            X_rof = X_total_original[Zrows_of_rof]
 
             # it gives an ns by nr matrix
             R_x = (
                 np.transpose(np.tile(X_rof, (2, 1))) * emp_shares
             )
 
-            # thus reshape it to a column matrix.
-            # reshape function takes the first column first and etc.
-            X_rr = np.reshape(
-                R_x, n_r * n_s, order="F"
-            )
+            # # thus reshape it to a column matrix.
+            # # reshape function takes the first column first and etc.
+            # X_rr = np.reshape(
+            #     R_x, n_r * n_s, order="F"
+            # )
 
             A_rof = A_mr[Zrows_of_rof[:, None], Zcolumns_of_rof]
 
@@ -510,7 +462,7 @@ def main():
                 axis=0,
             )
 
-            Z_rr = np.dot(A_rr, np.diag(X_rr))
+            # Z_rr = np.dot(A_rr, np.diag(X_rr))
 
             Y_r1 = Y_mr[Zrows_of_rof[:, None], Ycolumns_of_rof] * np.transpose(
                 np.reshape(np.array(reg_exp_shares[:, 0]), (n_y, 1))
@@ -534,16 +486,6 @@ def main():
                 axis=0,
             )
 
-            # calculate regional value added
-            # VA_mr = np.array((X_total) - np.sum(Z_mr, axis=0))
-            VA_mr = np.array((X_total) - Z_mr_s_in)
-            VA_rof = VA_mr[Zcolumns_of_rof]
-
-            # so value of added are scaled according to the regional output shares
-            VA_r1 = VA_rof * R_x[:, 0] / (X_rof + 10 ** (-31))
-            VA_r2 = VA_rof * R_x[:, 1] / (X_rof + 10 ** (-31))
-            VA_rr = np.concatenate((VA_r1, VA_r2))
-
             # lets go to the updated mr database
             # the new region 2 is added at the end of the natabase whereas its parent
             # country stays the same
@@ -552,17 +494,18 @@ def main():
             new_Zrows_of_region2 = np.array(range((n_c) * n_s, (n_c + 1) * n_s))
 
             # allocate a free database with number of countries increased by 1
+            print(f'n_c {n_c}\tn_s {n_s}\t(n_c + 1) * n_s {(n_c + 1) * n_s}')
             A_mr_disagg = np.zeros(((n_c + 1) * n_s, (n_c + 1) * n_s))
             A_mr[
                 np.array(range(0, n_c_org * n_s))[:, None],
                 np.array(range(0, n_c_org * n_s)),
-            ] = A_mr_org
+            ] = A_mr_original
             A_mr_disagg[
                 np.array(range(0, (n_c) * n_s))[:, None],
                 np.array(range(0, (n_c) * n_s))
             ] = A_mr
-
-            # dublicate the rows and the columns of country of interest
+            print(f'id(A_mr) {id(A_mr)}, id(A_mr_disagg) = {id(A_mr_disagg)}')
+            # duplicate the rows and the columns of country of interest
 
             # rows according to the output shares
             A_mr_disagg[Zrows_of_rof[:, None], range(0, (n_c) * n_s)] = A_mr[
@@ -595,7 +538,7 @@ def main():
             Y_mr[
                 np.array(range(0, n_c_org * n_s))[:, None],
                 np.array(range(0, n_c_org * n_y)),
-            ] = Y_mr_org
+            ] = Y_mr_original
             Y_mr_disagg[
                 np.array(range(0, (n_c) * n_s))[:, None],
                 np.array(range(0, (n_y * (n_c))))
@@ -623,15 +566,7 @@ def main():
             Y_mr_disagg[Zrows_of_rof[:, None], new_Ycolumns_of_region2] = Y_r1r2
             Y_mr_disagg[new_Zrows_of_region2[:, None], Ycolumns_of_rof] = Y_r2r1
 
-            # calculate new L
-            desired_X_mr = np.array(np.zeros((n_s * (n_c + 1))))
-            desired_X_mr[np.array(range(0, (n_c) * n_s))] = np.array(
-                X_total[np.array(range(0, (n_c) * n_s))]
-            )
-            desired_X_mr[new_Zrows_of_region2] = np.array(X_rr[np.array(range(0, n_s))])
-            desired_X_mr[Zrows_of_rof] = np.array(X_rr[np.array(range(n_s, 2 * n_s))])
-
-            X_rr_list.append(X_rr)
+            # X_rr_list.append(X_rr)
 
             Region_data[id_Nuts2].append(reg_exp_shares[0][1])
             Region_data[id_Nuts2].append(Y_r1r2)
@@ -644,8 +579,8 @@ def main():
             Region_data[id_Nuts2].append(A_r2r1)
             Region_data[id_Nuts2].append(A_r1r1)
             Region_data[id_Nuts2].append(A_r2r2)
-            Region_data[id_Nuts2].append(A_mr_org[Zrows_of_rof[:, None],
-                                                  Zcolumns_of_rof])
+            Region_data[id_Nuts2].append(A_mr_original[Zrows_of_rof[:, None],
+                                                       Zcolumns_of_rof])
 
             reg_exp_shares_all = reg_exp_shares_all.rename(
                 columns={0: "regions", 1: "value"}
@@ -700,7 +635,7 @@ def main():
             Y_mr_disagg[
                 np.array(range(i, i + n_sect))[:, None],
                 np.array(range(0, n_c_org * n_y))
-            ] = Y_mr_org[
+            ] = Y_mr_original[
                 Zrows_of_rof[:, None], np.array(range(0, n_c_org * n_y))
             ] * np.reshape(
                 np.array(
@@ -721,7 +656,7 @@ def main():
             A_mr_disagg[
                 np.array(range(i, i + n_sect))[:, None],
                 np.array(range(0, n_c_org * n_s))
-            ] = A_mr_org[
+            ] = A_mr_original[
                 Zrows_of_rof[:, None], np.array(range(0, n_c_org * n_s))
             ] * np.reshape(
                 np.array(
@@ -793,58 +728,10 @@ def main():
 
         """ Calculate the final final output product """
         desired_X_mr_final = calc_x(A_mr_disagg_final, Y_mr_disagg_final)
-        # Z_mr_disagg_final = np.dot(A_mr_disagg_final,
-        #                            np.array(np.diag(desired_X_mr_final)))
-
-        Z_mr_disagg_final_s_in, Z_mr_disagg_final_s_out = calc_z_s(A_mr_disagg_final,
-                                                                   desired_X_mr_final)
-
-        # Z_mr_disagg_final_s_in = calc_z_s_in(A_mr_disagg_final, desired_X_mr_final)
-        # Z_mr_disagg_final_s_out = calc_z_s_out(A_mr_disagg_final, desired_X_mr_final)
-
-        final_output_product_disagg = Z_mr_disagg_final_s_out + np.sum(
-            Y_mr_disagg_final, axis=1
-        )
-
-        # final_output_product_disagg = np.sum(Z_mr_disagg_final, axis=1) + np.sum(
-        #     Y_mr_disagg_final, axis=1
-        # )
-
-        # Z_mr_disagg_final_s = calc_z_s(A_mr_disagg_final, desired_X_mr_final)
-
-        # final_output_product_disagg = Z_mr_disagg_final_s + np.sum(
-        #     Y_mr_disagg_final, axis=1
-        # )
-
-        """
-        Sum the regional output products and check if
-        they match the orginal national acccount.
-        """
-        regional_final_output_all_disagg = pd.DataFrame()
-        count = 0
-        for i in range(n_c_org * n_s, (n_c * n_s), n_sect):
-            regional_final_output_all_disagg[Region_names[count]] = np.array(
-                final_output_product_disagg[i:i + n_sect]
-            )
-            count += 1
-
-        regional_output_check = regional_final_output_all_disagg.sum(axis=1)
-        national_output_check = original_output_product[Zrows_of_rof]
-        ratioX = regional_output_check / original_output_product[Zrows_of_rof]
-
-        # %%
-        # Some metrics to get an idea of how different the final output totals are.
-        print("Regions total output=",
-              int(np.sum(regional_output_check)))
-        print("Original nation output=",
-              int(np.sum(original_output_product[Zrows_of_rof])))
-
-        # %%
-        regional_final_output_all_disagg.sum(axis=0)
 
         """
         #Calculate the emission vector
-        emissions_org = B_mr_org * original_X_mr
+        emissions_org = B_mr_original * original_X_mr
 
         emissions_old = emissions_org[:,np.array(range(3800,4000))]
         emissions_old_sum = np.sum(emissions_old, axis = 1)
@@ -867,29 +754,6 @@ def main():
         user_selected_products_ids = np.intc(
             np.zeros((n_c, (user_selected_products).shape[0]))
         )
-
-        # Consumer Based Emissions
-        # VA_mr_disagg = np.array((desired_X_mr_final - Z_mr_disagg_final_s))
-        VA_mr_disagg = np.array(desired_X_mr_final-Z_mr_disagg_final_s_in)
-
-        # VA_mr_disagg = np.array((desired_X_mr_final -
-        #                          np.sum(Z_mr_disagg_final, axis=1)))
-        # bb_ax1_s_VA_mr_disagg = VA_mr_disagg
-        # bb_ax0_s_VA_mr_disagg = np.array((desired_X_mr_final -
-        #                                   np.sum(Z_mr_disagg_final, axis=0)))
-        # final_input_mr_disagg = np.sum(Z_mr_disagg_final, axis=0) + VA_mr_disagg
-
-    # not needed?
-        # for i, j, z in zip(
-        #     range(n_c_org * n_s, (n_c * n_s), n_sect),
-        #     Region_data,
-        #     range(n_c_org * n_y, n_y * n_c, 7),
-        # ):
-
-        #     y_NUTS2 = np.array(np.zeros((n_c * n_s, n_y)))
-        #     y_NUTS2 = Y_mr_disagg[:, np.array(range(z, z + 7))]
-        #     y_NUTS2 = y_NUTS2
-        #     mtemp = np.dot(L_mr_disagg_final, np.diag(np.sum(y_NUTS2, axis=1)))
 
         """ Plotting """
         """
@@ -926,44 +790,21 @@ def main():
         df_x_mr_disagg_final = pd.Series(desired_X_mr_final,
                                          index=mi_idx_nuts2)
 
-        # df_x_mr_disagg_final_diag = pd.DataFrame(np.diag(desired_X_mr_final),
-        #                                          index=mi_idx_nuts2,
-        #                                          columns=mi_idx_nuts2)
-
         # test if total output of IE is equal to IExx NUTS2 regions
         df_x_ie = df_x_mr['IE']
         l_ie_nuts2 = ['IE04', 'IE05', 'IE06']
         df_x_ie_nuts2 = df_x_mr_disagg_final[l_ie_nuts2]
-        # df_x_ie_nuts2_rel = df_x_ie_nuts2.divide(df_x_ie, level=1)
-        # df_x_ie_nuts2_rel = df_x_ie_nuts2_rel.fillna(0)
-
-        # df_x_ie.sum()
-        # df_x_ie_nuts2.sum()
 
         # %%
-        """ Save output disagg data """
+        # """ Save output disagg data """
+        # with open(data_folder+id_prev + "_A_matrix_S.npy", "wb") as handle:
+        #     np.save(handle, A_mr_disagg_final, handle)
 
-        # with open('region_dict.npy', 'wb') as handle:
-        #    np.save(handle, region_dict)
-
-        # with open(id_prev+'_Z_matrix.npy', 'wb') as handle:
-        #    np.save(handle, Z_mr_disagg_final)
-
-        with open(data_folder+id_prev + "_A_matrix_S.npy", "wb") as handle:
-            np.save(handle, A_mr_disagg_final, handle)
-
-        with open(data_folder+id_prev + "_Y_matrix_S.npy", "wb") as handle:
-            np.save(handle, Y_mr_disagg_final)
+        # with open(data_folder+id_prev + "_Y_matrix_S.npy", "wb") as handle:
+        #     np.save(handle, Y_mr_disagg_final)
 
         # %%
-        print("VA Disagg:", np.sum(VA_mr_disagg))
-        print("VA Original:", np.sum(VA_mr_original))
-        print("VA Disagg:", np.sum(VA_mr_disagg))
-        print("VA Original:", np.sum(VA_mr_original))
-        print("VA Disagg:", np.sum(VA_mr_disagg))
-        print("VA Original:", np.sum(VA_mr_original))
-
-        if eb_ver == 'ixi':
+        if source == 'eb_ixi':
             # Read value added in prices from baseline and EUCO3232.5.
             df_va_p_2030_base = rr.read_va_yr(
                 cfg.DATA_SHARE_DIR_PATH +
@@ -999,12 +840,8 @@ def main():
             df_va_p_2030_base_ie_nuts2 = (
                 df_x_ie_nuts2_em_rel.dot(df_va_p_2030_base_ie_diag))
 
-    # df_bb_va_original = pd.Series(bb_ax0_s_VA_mr_original, index=mi_idx)
-    # df_bb_va_disagg = pd.Series(bb_ax0_s_VA_mr_disagg, index=mi_idx_nuts2)
-
-    # df_bb_va_original_ie = df_bb_va_original['IE']
-    # df_bb_va_disagg_ie = df_bb_va_disagg[l_ie_nuts2]
+    return df_x_mr, df_x_mr_disagg_final
 
 
 if __name__ == '__main__':
-    main()
+    df_x_mr, df_x_mr_disagg_final = main()

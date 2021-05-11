@@ -133,6 +133,11 @@ LIST_OUTPUT_DIR_PATH = [
     LOG_DIR_PATH,
 ]
 
+n_cntr = 49
+n_prod = 200
+n_ind = 163
+n_y = 7
+
 # Boolean to save processed EXIOBASE version for future uses.
 SAVE_EB = True
 

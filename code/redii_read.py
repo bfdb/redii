@@ -247,18 +247,33 @@ def redii_iso3():
     return d_cntr_redii2exio_iso3
 
 
-def load_data(eb_ver_name, l_cntr, source):
+def load_data(source, l_cntr):
 
-    d_eb_proc = read_eb_proc(eb_ver_name)
+    if 'eb' in source:
+        if 'ixi' in source:
+            print('use EXIOBASE ixi')
+            eb_ver_name = cfg.T_EB_IXI_FPA_3_3_2011_PROC
+        elif 'pxp' in source:
+            print('use EXIOBASE pxp')
+            eb_ver_name = cfg.T_EB_PXP_ITA_3_3_2011_PROC
 
-    if source == 'eb':
-        # use exiobase data.
+        d_eb_proc = read_eb_proc(eb_ver_name)
+
         df_a_mr = d_eb_proc['cA']
         df_y_mr = d_eb_proc['tY']
         df_v_mr = d_eb_proc['cV']
 
     elif source == 'cm':
+        print('use circumat')
+
+        # use exiobase pxp data for labels
+        eb_ver_name = cfg.T_EB_PXP_ITA_3_3_2011_PROC
+        d_eb_proc = read_eb_proc(eb_ver_name)
+
         # use circumat data.
+
+        data_folder = cfg.INPUT_DIR_PATH+'cm/'
+
         A_mr = np.load(data_folder+"A_v4.npy")
         Y_mr = np.load(data_folder+"Y_v4.npy")
 
@@ -269,6 +284,8 @@ def load_data(eb_ver_name, l_cntr, source):
         df_y_mr = pd.DataFrame(Y_mr,
                                index=d_eb_proc['tY'].index,
                                columns=d_eb_proc['tY'].columns)
+
+        df_v_mr = d_eb_proc['cV']
 
     df_a_mr_cntr = df_a_mr[l_cntr].loc[l_cntr]
     df_y_mr_cntr = df_y_mr[l_cntr].loc[l_cntr]
