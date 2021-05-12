@@ -12,6 +12,8 @@ import pickle as pk
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
+import csv
+
 import cfg
 import exiobase as eb
 import redii_read as rr
@@ -19,6 +21,7 @@ import utils as ut
 
 
 def calc_x(ar_a, ar_y):
+    print('calc_x')
     ar_l = np.linalg.inv(np.identity(len(ar_a)) - ar_a)
     return np.dot(ar_l, np.sum(ar_y, axis=1))
 
@@ -30,44 +33,38 @@ def calc_z_s(ar_a, ar_x):
     return ar_z_s_in, ar_z_s_out
 
 
-ut.makedirs()
+def get_cm_reg_nuts2_start():
+    print('get_cm_reg_nuts2_start')
+    d_cm_reg = {}
+    d_cm_reg_nuts2_start = {}
+    with open(cfg.INPUT_DIR_PATH+'cm_reg.txt', encoding='utf-8') as read_file:
+        csv_file = csv.reader(read_file, delimiter='\t')
+        for row in csv_file:
+            reg_name, reg_code, global_id, parent_id, local_id, level = row
+            # country level
+            if level == '2':
+                d_cm_reg[reg_code] = {}
+                d_cm_reg[reg_code]['reg_name'] = reg_name
+                d_cm_reg[reg_code]['global_id'] = global_id
+                d_cm_reg[reg_code]['parent_id'] = global_id
+                d_cm_reg[reg_code]['local_id'] = local_id
+                d_cm_reg[reg_code]['level'] = level
+                d_cm_reg[reg_code]['NUTS2'] = {}
+            if level == '3':
+                reg_code_parent = reg_code[0:2]
+                d_cm_reg[reg_code_parent]['NUTS2'][reg_code] = {}
+                d_cm_reg[reg_code_parent]['NUTS2'][reg_code]['reg_name'] = reg_name
+                d_cm_reg[reg_code_parent]['NUTS2'][reg_code]['global_id'] = global_id
+                d_cm_reg[reg_code_parent]['NUTS2'][reg_code]['parent_id'] = global_id
+                d_cm_reg[reg_code_parent]['NUTS2'][reg_code]['local_id'] = local_id
+                d_cm_reg[reg_code_parent]['NUTS2'][reg_code]['level'] = level
+                if reg_code_parent not in d_cm_reg_nuts2_start:
+                    d_cm_reg_nuts2_start[reg_code_parent] = int(global_id)
+    return d_cm_reg_nuts2_start
 
 
-@profile(stream=open(cfg.LOG_DIR_PATH+'memory_profiler.txt', 'w+'))
-def main():
-
-    n_cntr = 49
-    n_prod = 200
-    n_ind = 163
-    n_y = 7
-
-    # Pick countries you want to disaggregate
-    country_start = [183]
-    country = ["IE"]
-
-    data_folder = cfg.INPUT_DIR_PATH+'cm/'
-
-    # Choose pxp or ixi, and incl. or excl. UK.
-    # To reproduce circumat: pxp and excl. uk, for redii: ixi and incl. uk.
-
-    # eb_ver = 'pxp'
-    # eb_ver = 'ixi'
-
-    reg = 'world'
-    # reg = 'eu28'
-    # reg = 'eu28exuk'
-    # reg = 'IE'
-
-    source = 'eb_ixi'
-    # source = 'eb_pxp'
-    # source = 'cm'
-
-    if source == 'eb_ixi':
-        n_sect = n_ind
-    elif source == 'eb_pxp':
-        n_sect = n_prod
-    elif source == 'cm':
-        n_sect = n_prod
+def load_data(source, reg):
+    print('load_data')
 
     if reg == 'world':
         l_cntr = cfg.l_wrld
@@ -83,6 +80,90 @@ def main():
                      l_cntr=l_cntr)
         )
 
+    # X_total_original = calc_x(A_mr_original, Y_mr_original)
+    ar_x_mr = calc_x(df_a_mr, df_y_mr)
+
+    df_x_mr = pd.Series(ar_x_mr,
+                        index=df_a_mr.columns)
+    return df_a_mr, df_y_mr, df_v_mr, df_x_mr
+
+
+def va_cntr2nuts2(cntr_em, df_x_cntr, df_x_nuts2):
+    print('va_cntr2nuts2')
+
+    # Read value added in prices from baseline and EUCO3232.5.
+    df_va_p_2030_base = rr.read_va_yr(
+        cfg.DATA_SHARE_DIR_PATH +
+        cfg.EXIOMOD_DIR_PATH +
+        cfg.file_name_base_eu28,
+        cfg.var_name_va_p_new,
+        cfg.yr_end,
+    )
+
+    # Aggregate sectors to EXIOMOD classification
+    df_eb_ind_code2em_ind_agg = (
+        pd.read_csv(cfg.INPUT_DIR_PATH +
+                    cfg.EB_IND_CODE2EM_IND_AGG_FILE_NAME,
+                    sep='\t',
+                    index_col=[0, 1],
+                    header=[0]))
+    df_eb_ind_code2em_ind_agg = df_eb_ind_code2em_ind_agg.droplevel(axis=0,
+                                                                    level=0)
+
+    df_x_cntr_em = df_x_cntr.dot(df_eb_ind_code2em_ind_agg)
+    df_x_nuts2_em = df_x_nuts2.unstack().dot(df_eb_ind_code2em_ind_agg)
+
+    df_x_nuts2_em_rel = df_x_nuts2_em.divide(df_x_cntr_em)
+    df_x_nuts2_em_rel.fillna(0, inplace=True)
+
+    df_va_p_2030_base_cntr = df_va_p_2030_base[cntr_em]
+
+    df_x_nuts2_em_rel = df_x_nuts2_em_rel[df_va_p_2030_base_cntr.index]
+    df_va_p_2030_base_cntr_diag = pd.DataFrame(np.diag(df_va_p_2030_base_cntr),
+                                               index=df_va_p_2030_base_cntr.index,
+                                               columns=df_va_p_2030_base_cntr.index)
+
+    df_va_p_2030_base_nuts2 = (
+        df_x_nuts2_em_rel.dot(df_va_p_2030_base_cntr_diag))
+
+    return df_va_p_2030_base_cntr, df_va_p_2030_base_nuts2
+
+
+ut.makedirs()
+
+
+@profile(stream=open(cfg.LOG_DIR_PATH+'memory_profiler.txt', 'w+'))
+def x_cntr2nuts2(source,
+                 s_country_cm,
+                 s_country_eb,
+                 s_country_es,
+                 country_start,
+                 df_a_mr,
+                 df_y_mr,
+                 df_v_mr,
+                 df_x_mr):
+    print('x_cntr2nuts2')
+    country = [s_country_eb]
+    country_start = [country_start]
+
+    n_cntr = 49
+    n_prod = 200
+    n_ind = 163
+    n_y = 7
+
+    if source == 'eb_ixi':
+        n_sect = n_ind
+    elif source == 'eb_pxp':
+        n_sect = n_prod
+    elif source == 'cm':
+        n_sect = n_prod
+
+    # Pick countries you want to disaggregate
+    # country_start = [183]
+    # country = ["IE"]
+
+    data_folder = cfg.INPUT_DIR_PATH+'cm/'
+
     A_mr = df_a_mr.values
     Y_mr = df_y_mr.values
     B_mr = df_v_mr.values
@@ -90,6 +171,9 @@ def main():
     A_mr_original = A_mr
     Y_mr_original = Y_mr
     B_mr_original = B_mr
+
+    X_total_original = df_x_mr.values
+    # X_total_original = calc_x(A_mr_original, Y_mr_original)
 
     # Y_mr_org = Y_mr
     # A_mr_org = A_mr
@@ -108,10 +192,8 @@ def main():
     n_b = B_mr.shape[0]  # number of environmental indicators
     n_b = int(n_b)
 
-    X_total_original = calc_x(A_mr_original, Y_mr_original)
-
-    df_x_mr = pd.Series(X_total_original,
-                        index=df_a_mr.columns)
+    # df_x_mr = pd.Series(X_total_original,
+    #                     index=df_a_mr.columns)
 
     # list including the table for country and its subnational details
     regions = pd.read_excel(data_folder+"circumat_regions_v3.xls")
@@ -143,6 +225,8 @@ def main():
     )
 
     for m, n in zip(country_start, country):
+
+        l_nuts2 = []
 
         # get labels of final demand categories.
         l_y_cat = list(df_y_mr[n].columns)
@@ -222,13 +306,15 @@ def main():
             # that is the frst two letter of above
             id_rof = id_Nuts2[0:2]
 
-            print(f'Nuts2 {Nuts2}, rof {rof}, name_rof {name_rof}, ' +
-                  'id_Nuts2 {id_Nuts2}, id_rof {id_rof}')
-
             # Stop the code from running on to a new nation.
 
-            if id_rof != n:
+            # if id_rof != n:
+            if id_rof != s_country_cm:
                 break
+
+            # print(f'Nuts2 {Nuts2}, rof {rof}, name_rof {name_rof}, ' +
+            #       f'id_Nuts2 {id_Nuts2}, id_rof {id_rof}')
+            l_nuts2.append(id_Nuts2)
 
             # generate labels of final demand categories for nuts2 region
             l_y_nuts2_cat = []
@@ -250,7 +336,7 @@ def main():
 
             id_prev = id_rof
             Region_names.append(id_Nuts2)
-            print(id_Nuts2)
+            print(id_rof, id_Nuts2)
 
             # according to the country code, read the income data
             reg_exp_shares_all = pd.read_csv(
@@ -264,6 +350,19 @@ def main():
                 sep="\t",
             )
 
+            # # accomodate for eurostat bug
+            # # according to the country code, read the income data
+            # reg_exp_shares_all = pd.read_csv(
+            #     data_folder
+            #     + "Income/2011_income_"
+            #     + "%s" % s_country_es
+            #     + "_"
+            #     + "%s" % name_rof
+            #     + "_B5N_MIO_EUR.csv",
+            #     header=None,
+            #     sep="\t",
+            # )
+
             """
             reg_exp_shares_all[0][0] = 'SL03'
             reg_exp_shares_all[0][1] = 'SL04'
@@ -275,7 +374,7 @@ def main():
             # first find the nuts 2
             internal_id_Nuts2 = (
                 (np.where(reg_exp_shares_all.iloc[:, 0] == id_Nuts2)[0])[0])
-            print(f"internal_id_Nuts2 {internal_id_Nuts2} id_Nuts2 {id_Nuts2}")
+            # print(f"internal_id_Nuts2 {internal_id_Nuts2} id_Nuts2 {id_Nuts2}")
             # write the nuts 2 income data into the second column, and scale it with the
             # sum of all income in the country
             reg_exp_shares[:, 1] = (
@@ -494,7 +593,6 @@ def main():
             new_Zrows_of_region2 = np.array(range((n_c) * n_s, (n_c + 1) * n_s))
 
             # allocate a free database with number of countries increased by 1
-            print(f'n_c {n_c}\tn_s {n_s}\t(n_c + 1) * n_s {(n_c + 1) * n_s}')
             A_mr_disagg = np.zeros(((n_c + 1) * n_s, (n_c + 1) * n_s))
             A_mr[
                 np.array(range(0, n_c_org * n_s))[:, None],
@@ -504,7 +602,6 @@ def main():
                 np.array(range(0, (n_c) * n_s))[:, None],
                 np.array(range(0, (n_c) * n_s))
             ] = A_mr
-            print(f'id(A_mr) {id(A_mr)}, id(A_mr_disagg) = {id(A_mr_disagg)}')
             # duplicate the rows and the columns of country of interest
 
             # rows according to the output shares
@@ -629,7 +726,7 @@ def main():
 
         reg_count = 0
         for i in range(n_c_org * n_s, n_s * n_c, n_sect):
-            print(reg_count, i)
+            # print(reg_count, i)
             # Add in the row data according to ratio of regions
             # that are expected to export based on demand.
             Y_mr_disagg[
@@ -713,8 +810,8 @@ def main():
         """ Check sum of regional Y values vs. orginal Y """
         Y_disagg_total = np.sum(np.sum(Y_mr_disagg_final, axis=0))
         Y_org_total = np.sum(np.sum(Y_mr_original, axis=0))
-        print("Y_disagg total: ", Y_disagg_total)
-        print("Y_origin total: ", Y_org_total)
+        # print("Y_disagg total: ", Y_disagg_total)
+        # print("Y_origin total: ", Y_org_total)
 
         # Check the individual sector ratios of the disagg and orignial Y matrix
         Y_check_disagg = np.sum(Y_mr_disagg_final, axis=1)
@@ -791,9 +888,12 @@ def main():
                                          index=mi_idx_nuts2)
 
         # test if total output of IE is equal to IExx NUTS2 regions
-        df_x_ie = df_x_mr['IE']
-        l_ie_nuts2 = ['IE04', 'IE05', 'IE06']
-        df_x_ie_nuts2 = df_x_mr_disagg_final[l_ie_nuts2]
+        # df_x_ie = df_x_mr['IE']
+        # l_ie_nuts2 = ['IE04', 'IE05', 'IE06']
+        # df_x_ie_nuts2 = df_x_mr_disagg_final[l_ie_nuts2]
+
+        df_x_cntr = df_x_mr[s_country_eb]
+        df_x_nuts2 = df_x_mr_disagg_final[l_nuts2]
 
         # %%
         # """ Save output disagg data """
@@ -804,44 +904,99 @@ def main():
         #     np.save(handle, Y_mr_disagg_final)
 
         # %%
-        if source == 'eb_ixi':
-            # Read value added in prices from baseline and EUCO3232.5.
-            df_va_p_2030_base = rr.read_va_yr(
-                cfg.DATA_SHARE_DIR_PATH +
-                cfg.EXIOMOD_DIR_PATH +
-                cfg.file_name_base_eu28,
-                cfg.var_name_va_p_new,
-                cfg.yr_end,
-            )
+        # if source == 'eb_ixi':
+        #     # Read value added in prices from baseline and EUCO3232.5.
+        #     df_va_p_2030_base = rr.read_va_yr(
+        #         cfg.DATA_SHARE_DIR_PATH +
+        #         cfg.EXIOMOD_DIR_PATH +
+        #         cfg.file_name_base_eu28,
+        #         cfg.var_name_va_p_new,
+        #         cfg.yr_end,
+        #     )
 
-            # Aggregate sectors to EXIOMOD classification
-            df_eb_ind_code2em_ind_agg = (
-                pd.read_csv(cfg.INPUT_DIR_PATH +
-                            cfg.EB_IND_CODE2EM_IND_AGG_FILE_NAME,
-                            sep='\t',
-                            index_col=[0, 1],
-                            header=[0]))
-            df_eb_ind_code2em_ind_agg = df_eb_ind_code2em_ind_agg.droplevel(axis=0,
-                                                                            level=0)
+        #     # Aggregate sectors to EXIOMOD classification
+        #     df_eb_ind_code2em_ind_agg = (
+        #         pd.read_csv(cfg.INPUT_DIR_PATH +
+        #                     cfg.EB_IND_CODE2EM_IND_AGG_FILE_NAME,
+        #                     sep='\t',
+        #                     index_col=[0, 1],
+        #                     header=[0]))
+        #     df_eb_ind_code2em_ind_agg = df_eb_ind_code2em_ind_agg.droplevel(axis=0,
+        #                                                                     level=0)
 
-            df_x_ie_em = df_x_ie.dot(df_eb_ind_code2em_ind_agg)
-            df_x_ie_nuts2_em = df_x_ie_nuts2.unstack().dot(df_eb_ind_code2em_ind_agg)
+        #     df_x_ie_em = df_x_ie.dot(df_eb_ind_code2em_ind_agg)
+        #     df_x_ie_nuts2_em = df_x_ie_nuts2.unstack().dot(df_eb_ind_code2em_ind_agg)
 
-            df_x_ie_nuts2_em_rel = df_x_ie_nuts2_em.divide(df_x_ie_em)
-            df_x_ie_nuts2_em_rel.fillna(0, inplace=True)
+        #     df_x_ie_nuts2_em_rel = df_x_ie_nuts2_em.divide(df_x_ie_em)
+        #     df_x_ie_nuts2_em_rel.fillna(0, inplace=True)
 
-            df_va_p_2030_base_ie = df_va_p_2030_base['EU28_IE']
+        #     df_va_p_2030_base_ie = df_va_p_2030_base['EU28_IE']
 
-            df_x_ie_nuts2_em_rel = df_x_ie_nuts2_em_rel[df_va_p_2030_base_ie.index]
-            df_va_p_2030_base_ie_diag = pd.DataFrame(np.diag(df_va_p_2030_base_ie),
-                                                     index=df_va_p_2030_base_ie.index,
-                                                     columns=df_va_p_2030_base_ie.index)
+        #     df_x_ie_nuts2_em_rel = df_x_ie_nuts2_em_rel[df_va_p_2030_base_ie.index]
+        #     df_va_p_2030_base_ie_diag = pd.DataFrame(np.diag(df_va_p_2030_base_ie),
+        #                                              index=df_va_p_2030_base_ie.index,
+        #                                              columns=df_va_p_2030_base_ie.index)
 
-            df_va_p_2030_base_ie_nuts2 = (
-                df_x_ie_nuts2_em_rel.dot(df_va_p_2030_base_ie_diag))
+        #     df_va_p_2030_base_ie_nuts2 = (
+        #         df_x_ie_nuts2_em_rel.dot(df_va_p_2030_base_ie_diag))
 
-    return df_x_mr, df_x_mr_disagg_final
+    return df_x_cntr, df_x_nuts2
 
+import pickle
 
+p_x_file_path = '../scratch/d_x_at_se.pkl'
+# with open(p_x_file_path, 'wb') as write_file:
+#     pickle.dump(d_x, write_file)
 if __name__ == '__main__':
-    df_x_mr, df_x_mr_disagg_final = main()
+
+    # Choose pxp or ixi, and incl. or excl. UK.
+    # To reproduce circumat: pxp and excl. uk, for redii: ixi and incl. uk.
+
+    source = 'eb_ixi'
+    # source = 'eb_pxp'
+    # source = 'cm'
+
+    reg = 'world'
+    # reg = 'eu28'
+    # reg = 'eu28exuk'
+    # reg = 'IE'
+
+    df_a_mr, df_y_mr, df_v_mr, df_x_mr = load_data(source, reg)
+
+    d_cm_reg_nuts2_start = get_cm_reg_nuts2_start()
+    # d_x = {}
+    # d_x_at_fr = d_x.copy()
+    with open(p_x_file_path, 'rb') as read_file:
+        d_x = pickle.load(read_file)
+
+    for eu28_cntr_cm in d_cm_reg_nuts2_start:
+        eu28_cntr_start = d_cm_reg_nuts2_start[eu28_cntr_cm]
+        eu28_cntr_eb = cfg.d_eu28_cm2eb[eu28_cntr_cm]
+        eu28_cntr_em = cfg.d_eu28_cm2em[eu28_cntr_cm]
+        eu28_cntr_es = cfg.d_eu28_cm2es[eu28_cntr_cm]
+        # eu28_cntr_eb = 'IE'
+        # eu28_cntr_start = 183
+        # eu28_cntr_em = 'EU28_IE'
+        if eu28_cntr_start >= 264:
+            print(eu28_cntr_cm, eu28_cntr_eb, eu28_cntr_start)
+            df_x_cntr, df_x_nuts2 = x_cntr2nuts2(source,
+                                                 eu28_cntr_cm,
+                                                 eu28_cntr_eb,
+                                                 eu28_cntr_es,
+                                                 eu28_cntr_start,
+                                                 df_a_mr,
+                                                 df_y_mr,
+                                                 df_v_mr,
+                                                 df_x_mr)
+            d_x[eu28_cntr_em] = {}
+            d_x[eu28_cntr_em]['x_cntr'] = df_x_cntr
+            d_x[eu28_cntr_em]['x_nuts2'] = df_x_nuts2
+
+    # d_va = {}
+    for eu28_cntr_em in cfg.l_eu28:
+        va_cntr, va_nuts2 = va_cntr2nuts2(eu28_cntr_em,
+                                          d_x[eu28_cntr_em]['x_cntr'],
+                                          d_x[eu28_cntr_em]['x_nuts2'])
+        d_va[eu28_cntr_em] = {}
+        d_va[eu28_cntr_em]['va_cntr'] = va_cntr
+        d_va[eu28_cntr_em]['va_nuts2'] = va_nuts2
