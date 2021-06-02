@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 
 import csv
+import os
+import pickle
 
 import cfg
 import exiobase as eb
@@ -80,11 +82,20 @@ def load_data(source, reg):
                      l_cntr=l_cntr)
         )
 
-    # X_total_original = calc_x(A_mr_original, Y_mr_original)
-    ar_x_mr = calc_x(df_a_mr, df_y_mr)
+    df_x_file_name = 'df_x.pkl'
+    if df_x_file_name in os.listdir(cfg.INPUT_DIR_PATH):
+        df_x_mr = pickle.load(
+            open(cfg.INPUT_DIR_PATH+df_x_file_name,
+                 'rb'))
+    else:
+        ar_x_mr = calc_x(df_a_mr, df_y_mr)
 
-    df_x_mr = pd.Series(ar_x_mr,
-                        index=df_a_mr.columns)
+        df_x_mr = pd.Series(ar_x_mr,
+                            index=df_a_mr.columns)
+        pickle.dump(df_x_mr,
+                    open(cfg.INPUT_DIR_PATH+df_x_file_name,
+                         'wb'))
+
     return df_a_mr, df_y_mr, df_v_mr, df_x_mr
 
 
@@ -136,7 +147,7 @@ ut.makedirs()
 def x_cntr2nuts2(source,
                  s_country_cm,
                  s_country_eb,
-                 s_country_es,
+                 # s_country_es,
                  country_start,
                  df_a_mr,
                  df_y_mr,
@@ -196,7 +207,8 @@ def x_cntr2nuts2(source,
     #                     index=df_a_mr.columns)
 
     # list including the table for country and its subnational details
-    regions = pd.read_excel(data_folder+"circumat_regions_v3.xls")
+    # regions = pd.read_excel(data_folder+"circumat_regions_v3.xls")
+    regions = pd.read_excel(data_folder+"circumat_regions.xls")
 
     # list of final demand categories for EXIOBASE regions.
     l_y_col = list(df_y_mr.columns)
@@ -942,11 +954,10 @@ def x_cntr2nuts2(source,
 
     return df_x_cntr, df_x_nuts2
 
-import pickle
 
-p_x_file_path = '../scratch/d_x_at_se.pkl'
-# with open(p_x_file_path, 'wb') as write_file:
-#     pickle.dump(d_x, write_file)
+###
+p_x_file_path = '../input/d_x.pkl'
+p_va_file_path = '../input/d_va.pkl'
 if __name__ == '__main__':
 
     # Choose pxp or ixi, and incl. or excl. UK.
@@ -965,24 +976,20 @@ if __name__ == '__main__':
 
     d_cm_reg_nuts2_start = get_cm_reg_nuts2_start()
     # d_x = {}
-    # d_x_at_fr = d_x.copy()
-    with open(p_x_file_path, 'rb') as read_file:
-        d_x = pickle.load(read_file)
+
+    with open(p_va_file_path, 'rb') as read_file:
+        d_va = pickle.load(read_file)
 
     for eu28_cntr_cm in d_cm_reg_nuts2_start:
         eu28_cntr_start = d_cm_reg_nuts2_start[eu28_cntr_cm]
         eu28_cntr_eb = cfg.d_eu28_cm2eb[eu28_cntr_cm]
         eu28_cntr_em = cfg.d_eu28_cm2em[eu28_cntr_cm]
-        eu28_cntr_es = cfg.d_eu28_cm2es[eu28_cntr_cm]
-        # eu28_cntr_eb = 'IE'
-        # eu28_cntr_start = 183
-        # eu28_cntr_em = 'EU28_IE'
         if eu28_cntr_start >= 264:
             print(eu28_cntr_cm, eu28_cntr_eb, eu28_cntr_start)
             df_x_cntr, df_x_nuts2 = x_cntr2nuts2(source,
                                                  eu28_cntr_cm,
                                                  eu28_cntr_eb,
-                                                 eu28_cntr_es,
+                                                 # eu28_cntr_es,
                                                  eu28_cntr_start,
                                                  df_a_mr,
                                                  df_y_mr,
@@ -991,8 +998,10 @@ if __name__ == '__main__':
             d_x[eu28_cntr_em] = {}
             d_x[eu28_cntr_em]['x_cntr'] = df_x_cntr
             d_x[eu28_cntr_em]['x_nuts2'] = df_x_nuts2
+    with open(p_x_file_path, 'wb') as write_file:
+        pickle.dump(d_x, write_file)
 
-    # d_va = {}
+    d_va = {}
     for eu28_cntr_em in cfg.l_eu28:
         va_cntr, va_nuts2 = va_cntr2nuts2(eu28_cntr_em,
                                           d_x[eu28_cntr_em]['x_cntr'],
@@ -1000,3 +1009,6 @@ if __name__ == '__main__':
         d_va[eu28_cntr_em] = {}
         d_va[eu28_cntr_em]['va_cntr'] = va_cntr
         d_va[eu28_cntr_em]['va_nuts2'] = va_nuts2
+
+    with open(p_va_file_path, 'wb') as write_file:
+        pickle.dump(d_va, write_file)

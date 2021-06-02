@@ -40,6 +40,7 @@ def read_eb_proc(t_eb_proc):
 
 
 def read_gdx(file_path, var_name):
+    ut.log(f'Read {var_name} from gdx.')
     with gdxr.GdxFile(file_path) as f:
         df_var = f[var_name]
     return df_var
@@ -63,6 +64,7 @@ def read_exec_time(file_path, var_name):
 
 
 def get_emp_c():
+    ut.log('Get employment coefficients.s')
     df_y_p_2011_base = read_va_yr(
         cfg.DATA_SHARE_DIR_PATH + cfg.EXIOMOD_DIR_PATH + cfg.file_name_base_eu28,
         cfg.var_name_y_time_p,
@@ -130,6 +132,7 @@ def find_imp_pelca_missing_val(df_ind_out_ielcb, df_imp_pelca):
 
 
 def read_va_yr(file_path, var_name, yr):
+    ut.log('Reading EXIOMOD input.')
     df_gdx = read_gdx(file_path, var_name)
     df_gdx_yr = df_gdx[:, :, str(yr)]
     return df_gdx_yr
@@ -159,12 +162,15 @@ def read_gdf_world():
     return gdf_world
 
 
-def read_gdf_eu():
-    return gpd.read_file(cfg.input_path + cfg.file_name_nuts2_shp)
+def read_gdf_eu(version):
+    if version == 'globiom':
+        return gpd.read_file(cfg.input_path + cfg.file_name_nuts2_shp_globiom)
+    elif version == 'circumat':
+        return gpd.read_file(cfg.input_path + cfg.file_name_nuts2_shp_cm)
 
 
 def fill_base(df_prod_nuts2_2030_base_na, df_prod_nuts2_2030_scen, fill_na_val):
-
+    ut.log(f'Fill missing values in baseline with {fill_na_val}')
     d_prod_nuts2_2030_base = df_prod_nuts2_2030_base_na.to_dict()
     d_prod_nuts2_2030_scen = df_prod_nuts2_2030_scen.to_dict()
 
@@ -308,3 +314,18 @@ def read_d_cv_cat():
             for row in csv_file:
                 dict_impact[fp_type].append(tuple(row))
     return dict_impact
+
+
+def read_d_x_cm():
+    return pickle.load(open(cfg.INPUT_DIR_PATH+'d_x.pkl', 'rb'))
+
+
+def read_ind_cm2em():
+    df_eb_ind_code2em_ind_agg = (pd.read_csv(cfg.INPUT_DIR_PATH +
+                                             cfg.EB_IND_CODE2EM_IND_AGG_FILE_NAME,
+                                             sep='\t',
+                                             index_col=[0, 1],
+                                             header=[0]))
+    df_eb_ind_code2em_ind_agg = df_eb_ind_code2em_ind_agg.droplevel(axis=0,
+                                                                    level=0)
+    return df_eb_ind_code2em_ind_agg

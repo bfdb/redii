@@ -5,9 +5,12 @@ Created on Fri Nov 20 08:21:26 2020
 @author: bfdeboer
 """
 
+import numpy as np
 import pandas as pd
 
 import cfg
+import redii_read as rr
+import utils as ut
 
 
 def calc_d_cntr_nuts2_r(df):
@@ -79,3 +82,44 @@ def va_ind_cntr_eu(df_va, ind):
             d_df_va_cntr_exio2globiom[cntr_globiom] = cntr_va
 
     return pd.Series(d_df_va_cntr_exio2globiom)
+
+
+def var_cntr2nuts(df_var):
+    d_var_cntr2nuts = {}
+    # disaggregate VA, emp with circumat x_nuts/x_cntr
+    d_x_cm = rr.read_d_x_cm()
+    # Aggregate sectors to EXIOMOD classification
+    df_ind_cm2em = rr.read_ind_cm2em()
+
+    for cntr in cfg.l_eu28:
+        df_var_cntr = df_var[cntr]
+
+        df_x_cm_cntr = d_x_cm[cntr]['x_cntr']
+        df_x_cm_nuts2 = d_x_cm[cntr]['x_nuts2']
+
+        df_x_em_cntr = df_x_cm_cntr.dot(df_ind_cm2em)
+        df_x_em_nuts2 = df_x_cm_nuts2.unstack().dot(df_ind_cm2em)
+
+        df_x_em_nuts2_rel = df_x_em_nuts2.divide(df_x_em_cntr)
+        df_x_em_nuts2_rel.fillna(0, inplace=True)
+
+        # Reorder index.
+        df_x_em_nuts2_rel = df_x_em_nuts2_rel[df_var_cntr.index]
+
+        df_var_cntr_diag = pd.DataFrame(np.diag(df_var_cntr),
+                                        index=df_var_cntr.index,
+                                        columns=df_var_cntr.index)
+
+        df_var_nuts2 = (
+            df_x_em_nuts2_rel.dot(df_var_cntr_diag))
+        d_var_cntr2nuts[cntr] = df_var_nuts2
+
+    df_cat = pd.DataFrame()
+    for cntr in d_var_cntr2nuts:
+        df = d_var_cntr2nuts[cntr]
+        if df_cat.empty:
+            df_cat = df
+        else:
+            df_cat = pd.concat([df_cat, df])
+
+    return df_cat

@@ -25,7 +25,7 @@ Poland	PL	23	1	22	2
 Portugal	PT	24	1	23	2
 Romania	RO	25	1	24	2
 Sweden	SE	26	1	25	2
-Slovenia	SL	27	1	26	2
+Slovenia	SI	27	1	26	2
 Slovakia	SK	28	1	27	2
 United Kingdom	UK	29	1	28	2
 Burgenland 	AT11	30	2	50	3
@@ -262,8 +262,8 @@ Västsverige	SE23	260	26	50	3
 Norra Mellansverige	SE31	261	26	50	3
 Mellersta Norrland	SE32	262	26	50	3
 Övre Norrland	SE33	263	26	50	3
-Vzhodna Slovenija	SL03	264	27	50	3
-Zahodna Slovenija	SL04	265	27	50	3
+Vzhodna Slovenija	SI03	264	27	50	3
+Zahodna Slovenija	SI04	265	27	50	3
 Bratislavský kraj	SK01	266	28	50	3
 Západné Slovensko	SK02	267	28	50	3
 Stredné Slovensko	SK03	268	28	50	3

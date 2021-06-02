@@ -14,6 +14,8 @@ import seaborn as sns
 import xlwings as xw
 
 import cfg
+import redii_read as rr
+import utils as ut
 
 
 def cntr_redii_iso3(df, d_cntr_redii2exio_iso3):
@@ -85,11 +87,6 @@ def write_gdf_world_cntr(gdf_world):
             cntr_cont = d_world["continent"][idx]
             row_write = [cntr_name, cntr_iso_a3, cntr_cont]
             csv_file.writerow(row_write)
-
-
-
-
-import redii_read as rr
 
 
 def cntr_redii_iso3(df, d_cntr_redii2exio_iso3):
@@ -245,6 +242,7 @@ def write_va_ielcb_eu(df, file_name):
 
 
 def write_var(df, file_name):
+    ut.log(f'Write EXIOMOD output tot {file_name}.')
     d_df = df.to_dict()
     with open(cfg.RESULT_TXT_DIR_PATH + file_name, "w") as write_file:
         csv_file = csv.writer(write_file, delimiter="\t", lineterminator="\n")
@@ -266,6 +264,8 @@ def create_wb():
 
 
 def write_var_excel(df, sheet_name, wb, unstack):
+    ut.log(f'Write output to Excel workbook, sheet {sheet_name}.')
+
     sht = wb.sheets.add(sheet_name, after=wb.sheets[-1])
     if unstack:
         sht.range("A1").value = df.unstack()
@@ -286,6 +286,7 @@ def close_wb():
     app = xw.apps.active
     app.quit()
 
+
 def cm2inch(tup_cm):
     """ Convert cm to inch.
         Used for figure generation.
@@ -302,3 +303,31 @@ def cm2inch(tup_cm):
     inch = 2.54
     tup_inch = tuple(i/inch for i in tup_cm)
     return tup_inch
+
+
+def plot_gdf_cm(gdf_eu, df, scen):
+    for col in df:
+        if scen == 'delta':
+            cmap = 'coolwarm'
+            cmap_name = cmap
+            vmin = int(np.floor(-df[col].max()))
+            vmax = int(np.ceil(df[col].max()))
+        else:
+            cmap_name = "crest"
+            cmap = sns.color_palette(cmap_name, as_cmap=True)
+
+            vmin = int(np.floor(df[col].min()))
+            vmax = int(np.ceil(df[col].max()))
+        plt.figure()
+        gdf_eu.plot(column=col,
+                    missing_kwds={"color": "lightgrey"},
+                    legend=True,
+                    legend_kwds={'ticks': [vmin,
+                                           # int((vmin+vmax)/2),
+                                           vmax]},
+                    cmap=cmap,
+                    vmin=vmin,
+                    vmax=vmax)
+        plt.tight_layout()
+        plt.savefig(f'{cfg.RESULT_PNG_DIR_PATH}{scen}_{col}')
+        plt.close('all')

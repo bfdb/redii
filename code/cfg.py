@@ -33,6 +33,7 @@ import datetime
 import matplotlib.pyplot as plt
 
 import redii_read as rr
+import utils as ut
 
 
 def get_date():
@@ -69,8 +70,9 @@ file_name_var_plot_eu28 = "var_plot_eu28.txt"
 
 file_name_eb_pxp2ixi = 'eb_pxp2ixi.txt'
 
-# file_name_nuts2_shp = "NUTS_RG_20M_2003_3035_LEVL_2.shp"
-file_name_nuts2_shp = "EU_nuts_revisited"
+# file_name_nuts2_shp_cm = "NUTS_RG_20M_2003_3035_LEVL_2.shp"
+file_name_nuts2_shp_cm = "NUTS_RG_01M_2016_3035_LEVL_2.shp"
+file_name_nuts2_shp_globiom = "EU_nuts_revisited"
 
 file_name_nuts2_1999_2003 = 'nuts2_1999_2003.txt'
 # file_name_globiom_out = "Runs_GLOBIOM_Bertram_10sept2020.gdx"
@@ -239,6 +241,8 @@ file_name_excel_delta_r = "output_delta_r.xlsx"
 file_name_excel_base_na_data = 'base_na_data.xlsx'
 data_dir = "../../exiomod/"
 
+ut.makedirs()
+
 # Read execution date and time.
 t_em_base_datetime = rr.read_exec_datetime(
     DATA_SHARE_DIR_PATH + EXIOMOD_DIR_PATH + file_name_base_eu28
@@ -322,39 +326,39 @@ d_eu28_cm2eb = {"AT": "AT",
                 "PT": "PT",
                 "RO": "RO",
                 "SE": "SE",
-                "SL": "SI",
+                "SI": "SI",
                 "SK": "SK",
                 "UK": "GB"}
 
-# eurostat bug where Slovenia is denoted as SL instead of SI
-d_eu28_cm2es = {"AT": "AT",
-                "BE": "BE",
-                "BG": "BG",
-                "CY": "CY",
-                "CZ": "CZ",
-                "DE": "DE",
-                "DK": "DK",
-                "EE": "EE",
-                "ES": "ES",
-                "FI": "FI",
-                "FR": "FR",
-                "EL": "GR",
-                "HR": "HR",
-                "HU": "HU",
-                "IE": "IE",
-                "IT": "IT",
-                "LT": "LT",
-                "LU": "LU",
-                "LV": "LV",
-                "MT": "MT",
-                "NL": "NL",
-                "PL": "PL",
-                "PT": "PT",
-                "RO": "RO",
-                "SE": "SE",
-                "SL": "SL",
-                "SK": "SK",
-                "UK": "GB"}
+# # eurostat bug where Slovenia is denoted as SL instead of SI
+# d_eu28_cm2es = {"AT": "AT",
+#                 "BE": "BE",
+#                 "BG": "BG",
+#                 "CY": "CY",
+#                 "CZ": "CZ",
+#                 "DE": "DE",
+#                 "DK": "DK",
+#                 "EE": "EE",
+#                 "ES": "ES",
+#                 "FI": "FI",
+#                 "FR": "FR",
+#                 "EL": "GR",
+#                 "HR": "HR",
+#                 "HU": "HU",
+#                 "IE": "IE",
+#                 "IT": "IT",
+#                 "LT": "LT",
+#                 "LU": "LU",
+#                 "LV": "LV",
+#                 "MT": "MT",
+#                 "NL": "NL",
+#                 "PL": "PL",
+#                 "PT": "PT",
+#                 "RO": "RO",
+#                 "SE": "SE",
+#                 "SL": "SL",
+#                 "SK": "SK",
+#                 "UK": "GB"}
 
 d_eu28_cm2em = {"AT": "EU28_AT",
                 "BE": "EU28_BE",
@@ -381,7 +385,7 @@ d_eu28_cm2em = {"AT": "EU28_AT",
                 "PT": "EU28_PT",
                 "RO": "EU28_RO",
                 "SE": "EU28_SE",
-                "SL": "EU28_SI",
+                "SI": "EU28_SI",
                 "SK": "EU28_SK",
                 "UK": "EU28_GB"}
 
