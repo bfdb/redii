@@ -22,6 +22,8 @@ import redii_read as rr
 import redii_calc as rc
 import redii_write as rw
 
+plot = False
+
 wb_full = rw.create_wb()
 wb_delta_r = rw.create_wb()
 wb_base_na_data = rw.create_wb()
@@ -133,6 +135,65 @@ df_y_p_2030_scen = rr.read_va_yr(
     cfg.yr_end,
 )
 
+df_y_p_2030_delta = df_y_p_2030_scen - df_y_p_2030_base
+df_y_p_2030_delta_r = df_y_p_2030_scen / df_y_p_2030_base - 1
+
+
+rw.write_var_excel(df_y_p_2030_base,
+                   cfg.file_name_y_p_2030_base[:-4],
+                   wb_full,
+                   unstack=1)
+
+rw.write_var_excel(df_y_p_2030_scen,
+                   cfg.file_name_y_p_2030_scen[:-4],
+                   wb_full,
+                   unstack=1)
+
+rw.write_var_excel(df_y_p_2030_delta,
+                   cfg.file_name_y_p_2030_delta[:-4],
+                   wb_full,
+                   unstack=1)
+
+rw.write_var_excel(df_y_p_2030_delta_r,
+                   cfg.file_name_y_p_2030_delta_r[:-4],
+                   wb_full,
+                   unstack=1)
+
+df_y_q_2030_base = rr.read_va_yr(
+    cfg.DATA_SHARE_DIR_PATH + cfg.EXIOMOD_DIR_PATH + cfg.file_name_base_eu28,
+    cfg.var_name_y_time_q,
+    cfg.yr_end,
+)
+
+df_y_q_2030_scen = rr.read_va_yr(
+    cfg.DATA_SHARE_DIR_PATH + cfg.EXIOMOD_DIR_PATH + cfg.file_name_scen_eu28,
+    cfg.var_name_y_time_q,
+    cfg.yr_end,
+)
+
+df_y_q_2030_delta = df_y_q_2030_scen - df_y_q_2030_base
+df_y_q_2030_delta_r = df_y_q_2030_scen / df_y_q_2030_base - 1
+
+rw.write_var_excel(df_y_q_2030_base,
+                   cfg.file_name_y_q_2030_base[:-4],
+                   wb_full,
+                   unstack=1)
+
+rw.write_var_excel(df_y_q_2030_scen,
+                   cfg.file_name_y_q_2030_scen[:-4],
+                   wb_full,
+                   unstack=1)
+
+rw.write_var_excel(df_y_q_2030_delta,
+                   cfg.file_name_y_q_2030_delta[:-4],
+                   wb_full,
+                   unstack=1)
+
+rw.write_var_excel(df_y_q_2030_delta_r,
+                   cfg.file_name_y_q_2030_delta_r[:-4],
+                   wb_full,
+                   unstack=1)
+
 # Get 2011 coefficients of employment satellite account.
 df_emp_c = rr.get_emp_c()
 
@@ -212,26 +273,19 @@ i_slice_scen = pd.IndexSlice[
     "2030",
 ]
 
+
 df_prod_nuts2_2030_scen = df_out_nuts2.loc[i_slice_scen]
 df_prod_nuts2_2030_scen = df_prod_nuts2_2030_scen.droplevel([0, 1, 2, 6, 7, 8, 9])
-
-
-# # Fill missing values in baseline.
-# df_prod_nuts2_2030_base = rr.fill_base(
-#     df_prod_nuts2_2030_base_na, df_prod_nuts2_2030_scen, "scen"
-# )
 
 # Fill missing values in baseline.
 df_prod_nuts2_2030_base, df_base_na_scen_data = rr.fill_base(
     df_prod_nuts2_2030_base_na, df_prod_nuts2_2030_scen, fill_na_val=0
 )
 
-# Harmonize order of columns.
-df_prod_nuts2_2030_scen_u = df_prod_nuts2_2030_scen.unstack()
-df_prod_nuts2_2030_base_u = df_prod_nuts2_2030_base.unstack()
-df_prod_nuts2_2030_base_u = df_prod_nuts2_2030_base_u[df_prod_nuts2_2030_scen_u.columns]
-df_prod_nuts2_2030_base = df_prod_nuts2_2030_base_u.stack(dropna=False)
-df_prod_nuts2_2030_scen = df_prod_nuts2_2030_scen_u.stack(dropna=False)
+df_prod_nuts2_2030_base, df_prod_nuts2_2030_scen = rr.harmonize_col_order(
+    df_prod_nuts2_2030_base,
+    df_prod_nuts2_2030_scen)
+
 
 ###
 # Investigate missing baseline data.
@@ -360,6 +414,83 @@ df_prod_nuts2_2030_base_s_bm_r = rc.calc_d_cntr_nuts2_r(df_prod_nuts2_2030_base_
 # calc fraction of biomassm prod per nuts2 region in scen
 df_prod_nuts2_2030_scen_s_bm_r = rc.calc_d_cntr_nuts2_r(df_prod_nuts2_2030_scen_s_bm)
 
+###
+# Get all biomass
+i_slice_base_bm_all = pd.IndexSlice[
+    cfg.t_gb_base_date,
+    "PROD",
+    "1000 t",
+    :,
+    :,
+    :,
+    "SSP2",
+    "REFERENCE",
+    "REFERENCE",
+    "2030",
+]
+
+df_prod_nuts2_2030_base_bm_all_na = df_out_nuts2.loc[i_slice_base_bm_all]
+
+i_slice_scen_bm_all = pd.IndexSlice[
+    cfg.t_gb_scen_date,
+    "PROD",
+    "1000 t",
+    :,
+    :,
+    :,
+    "SSP2",
+    "REFERENCE",
+    "EUCO32",
+    "2030",
+]
+
+df_prod_nuts2_2030_scen_bm_all = df_out_nuts2.loc[i_slice_scen_bm_all]
+
+# Fill missing values in baseline.
+df_prod_nuts2_2030_base_bm_all, df_base_na_scen_bm_all_data = rr.fill_base(
+    df_prod_nuts2_2030_base_bm_all_na, df_prod_nuts2_2030_scen_bm_all, fill_na_val=0
+)
+
+df_prod_nuts2_2030_base_bm_all, df_prod_nuts2_2030_scen_bm_all = rr.harmonize_col_order(
+    df_prod_nuts2_2030_base_bm_all,
+    df_prod_nuts2_2030_scen_bm_all)
+
+
+df_prod_nuts2_2030_base_bm_all_cntr = (
+    df_prod_nuts2_2030_base_bm_all.sum(level=[0, 2]))
+df_prod_nuts2_2030_scen_bm_all_cntr = (
+    df_prod_nuts2_2030_scen_bm_all.sum(level=[0, 2]))
+
+df_prod_nuts2_2030_delta_bm_all_cntr = (
+    df_prod_nuts2_2030_scen_bm_all_cntr - df_prod_nuts2_2030_base_bm_all_cntr)
+df_prod_nuts2_2030_delta_r_bm_all_cntr = (
+    df_prod_nuts2_2030_scen_bm_all_cntr / df_prod_nuts2_2030_base_bm_all_cntr - 1)
+
+df_prod_nuts2_2030_delta_r_bm_all_cntr.replace([np.inf, -np.inf], np.nan, inplace=True)
+# df_prod_nuts2_2030_delta_bm_all_cntr = (
+#     df_prod_nuts2_2030_delta_bm_all.sum(level=[0, 2]))
+# df_prod_nuts2_2030_delta_r_bm_all_cntr = (
+#     df_prod_nuts2_2030_delta_r_bm_all.sum(level=[0, 2]))
+
+rw.write_var_excel(df_prod_nuts2_2030_base_bm_all_cntr,
+                   cfg.file_name_prod_nuts2_2030_base_bm_all[:-4],
+                   wb_full,
+                   unstack=1)
+
+rw.write_var_excel(df_prod_nuts2_2030_scen_bm_all_cntr,
+                   cfg.file_name_prod_nuts2_2030_scen_bm_all[:-4],
+                   wb_full,
+                   unstack=1)
+
+rw.write_var_excel(df_prod_nuts2_2030_delta_bm_all_cntr,
+                   cfg.file_name_prod_nuts2_2030_delta_bm_all[:-4],
+                   wb_full,
+                   unstack=1)
+
+rw.write_var_excel(df_prod_nuts2_2030_delta_r_bm_all_cntr,
+                   cfg.file_name_prod_nuts2_2030_delta_r_bm_all[:-4],
+                   wb_full,
+                   unstack=1)
 """
 Disaggregate value added to NUTS-2.
 """
@@ -493,366 +624,112 @@ rw.write_var_excel(df_emp_2030_delta_r_ielcb_nuts2,
                    unstack=0)
 
 # Plot results.
-plt.close("all")
-
-# rw.plot_redii_world(df_va_p_2030_cntr_base, "va_p_2030_cntr_base_world")
-
-# rw.plot_redii_world(df_va_p_2030_cntr_delta, "va_p_2030_cntr_delta_world")
-
-# rw.plot_redii_world(df_va_p_2030_cntr_delta_r, "va_p_2030_cntr_delta_world_r")
-
-gdf_eu_gb = rr.read_gdf_eu(version='globiom')
-gdf_eu_gb.plot()
-
-gdf_eu_cm = rr.read_gdf_eu(version='circumat')
-gdf_eu_cm.plot()
-
-l_var = [
-    ("va_p_2030_base_ielcb_nuts2", df_va_p_2030_base_ielcb_nuts2),
-    # ("va_p_2030_scen_ielcb_nuts2", df_va_p_2030_scen_ielcb_nuts2),
-    ("va_p_2030_delta_ielcb_nuts2", df_va_p_2030_delta_ielcb_nuts2),
-    # ("va_p_2030_delta_r_ielcb_nuts2", df_va_p_2030_delta_r_ielcb_nuts2),
-    ("emp_2030_base_ielcb_nuts2", df_emp_2030_base_ielcb_nuts2),
-    # ("emp_2030_scen_ielcb_nuts2", df_emp_2030_scen_ielcb_nuts2),
-    ("emp_2030_delta_ielcb_nuts2", df_emp_2030_delta_ielcb_nuts2),
-    # ("emp_2030_delta_r_ielcb_nuts2", df_emp_2030_delta_r_ielcb_nuts2)
-    ]
-
-# l_cmap = ['seismic',
-#           'coolwarm',
-#           'Spectral']
-
-# for cmap in l_cmap:
-
-plt.close('all')
-
-df_va_p_2030_delta_u = df_va_p_2030_delta.unstack()
-df_emp_2030_delta_u = df_emp_2030_delta.unstack()
-
-###
-# # begin full sort
-# df_va_p_2030_delta_u = df_va_p_2030_delta.unstack()
-# d_va_p_2030_delta = df_va_p_2030_delta.to_dict()
-# d_va_p_2030_delta_abs = {}
-# d_va_p_2030_delta_reg = {}
-# d_va_p_2030_delta_ind = {}
-# val_abs_sum = 0
-# for t_reg_ind in d_va_p_2030_delta:
-#     reg, ind = t_reg_ind
-#     val_abs = abs(d_va_p_2030_delta[t_reg_ind])
-#     if reg not in d_va_p_2030_delta_reg:
-#         d_va_p_2030_delta_reg[reg] = 0
-#     if ind not in d_va_p_2030_delta_ind:
-#         d_va_p_2030_delta_ind[ind] = 0
-#     d_va_p_2030_delta_reg[reg] += val_abs
-#     d_va_p_2030_delta_ind[ind] += val_abs
-#     d_va_p_2030_delta_abs[t_reg_ind] = val_abs
-#     val_abs_sum += val_abs
-#     # print(reg, ind)
-
-# d = d_va_p_2030_delta_abs
-# l_sort = sorted(d.items(),
-#                 key=operator.itemgetter(1),
-#                 reverse=True)
-
-# l_sort_abs_rel = []
-# val_abs_rel_cum = 0
-# val_abs_rel_cum_thresh = 0.8
-# for t_reg_ind_val in l_sort:
-#     (reg, ind), val_abs = t_reg_ind_val
-#     val_abs_rel = val_abs/val_abs_sum
-#     val_abs_rel_cum += val_abs_rel
-#     # print(val_abs_rel_cum)
-#     l_sort_abs_rel.append(((reg, ind), val_abs_rel))
-
-
-# def sort(d):
-#     l_sort = sorted(d.items(),
-#                     key=operator.itemgetter(1),
-#                     reverse=True)
-#     l_sort_idx = []
-#     for t_idx_val in l_sort:
-#         idx, val = t_idx_val
-#         l_sort_idx.append(idx)
-#     return l_sort_idx
-
-
-# l_va_p_2030_delta_reg_sort = sort(d_va_p_2030_delta_reg)
-# l_va_p_2030_delta_ind_sort = sort(d_va_p_2030_delta_ind)
-# df_va_p_2030_delta_u = df_va_p_2030_delta_u[l_va_p_2030_delta_ind_sort]
-# df_va_p_2030_delta_u = df_va_p_2030_delta_u.reindex(l_va_p_2030_delta_reg_sort)
-# end full sort
-###
-
-# ###
-# # begin threshold sort
-# df_va_p_2030_delta_u = df_va_p_2030_delta.unstack()
-# d_va_p_2030_delta = df_va_p_2030_delta.to_dict()
-# d_va_p_2030_delta_abs = {}
-# d_va_p_2030_delta_reg = {}
-# d_va_p_2030_delta_ind = {}
-# val_abs_sum = 0
-# for t_reg_ind in d_va_p_2030_delta:
-#     reg, ind = t_reg_ind
-#     val_abs = abs(d_va_p_2030_delta[t_reg_ind])
-#     d_va_p_2030_delta_abs[t_reg_ind] = val_abs
-#     val_abs_sum += val_abs
-#     print(reg, ind)
-
-# d = d_va_p_2030_delta_abs
-# l_sort = sorted(d.items(),
-#                 key=operator.itemgetter(1),
-#                 reverse=True)
-
-# l_sort_abs_rel = []
-# l_sort_abs_rel_cum = []
-# d_sort_abs_rel_reg = {}
-# d_sort_abs_rel_ind = {}
-# val_abs_rel_cum = 0
-# val_abs_rel_cum_thresh = 1.0
-# for t_reg_ind_val in l_sort:
-#     (reg, ind), val_abs = t_reg_ind_val
-#     val_abs_rel = val_abs/val_abs_sum
-#     val_abs_rel_cum += val_abs_rel
-#     if val_abs_rel_cum <= val_abs_rel_cum_thresh:
-#         print(val_abs_rel_cum)
-#         l_sort_abs_rel.append(((reg, ind), val_abs_rel))
-#         if reg not in d_sort_abs_rel_reg:
-#             d_sort_abs_rel_reg[reg] = 0
-#         if ind not in d_sort_abs_rel_ind:
-#             d_sort_abs_rel_ind[ind] = 0
-#         d_sort_abs_rel_reg[reg] += val_abs_rel
-#         d_sort_abs_rel_ind[ind] += val_abs_rel
-#         l_sort_abs_rel_cum.append(val_abs_rel_cum)
-
-
-# def sort(d):
-#     l_sort = sorted(d.items(),
-#                     key=operator.itemgetter(1),
-#                     reverse=True)
-#     l_sort_idx = []
-#     for t_idx_val in l_sort:
-#         idx, val = t_idx_val
-#         l_sort_idx.append(idx)
-#     return l_sort_idx
-
-
-# l_va_p_2030_delta_reg_sort = sort(d_sort_abs_rel_reg)
-# l_va_p_2030_delta_ind_sort = sort(d_sort_abs_rel_ind)
-# df_va_p_2030_delta_u = df_va_p_2030_delta_u[l_va_p_2030_delta_ind_sort]
-# df_va_p_2030_delta_u = df_va_p_2030_delta_u.reindex(l_va_p_2030_delta_reg_sort)
-# # end threshold sort
-# ###
-
-###
-
-df_va_p_2030_nuts2_base = rc.var_cntr2nuts(df_va_p_2030_base)
-df_va_p_2030_nuts2_scen = rc.var_cntr2nuts(df_va_p_2030_scen)
-df_va_p_2030_nuts2_delta = rc.var_cntr2nuts(df_va_p_2030_delta)
-
-
-def var2gdf_cm(gdf_eu_cm, df):
-    d_eu_cm_nuts2 = {}
-    for ind in df:
-        d_eu_cm_nuts2[ind] = {}
-        for nuts2_id, nuts2 in enumerate(gdf_eu_cm['NUTS_ID']):
-            if nuts2 in df.index:
-                d_eu_cm_nuts2[ind][nuts2_id] = df.loc[nuts2, ind]
-            else:
-                d_eu_cm_nuts2[ind][nuts2_id] = np.nan
-
-    df_eu_cm_nuts2 = pd.DataFrame(d_eu_cm_nuts2)
-
-    for col in df_eu_cm_nuts2:
-        gdf_eu_cm[col] = df_eu_cm_nuts2[col]
-
-    return gdf_eu_cm
-
-
-# df = df_va_p_2030_nuts2_base
-
-# d_eu_cm_nuts2 = {}
-# for ind in df:
-#     d_eu_cm_nuts2[ind] = {}
-#     for nuts2_id, nuts2 in enumerate(gdf_eu_cm['NUTS_ID']):
-#         if nuts2 in df.index:
-#             d_eu_cm_nuts2[ind][nuts2_id] = df.loc[nuts2, ind]
-#         else:
-#             d_eu_cm_nuts2[ind][nuts2_id] = np.nan
-
-# df_eu_cm_nuts2 = pd.DataFrame(d_eu_cm_nuts2)
-
-# for col in df_eu_cm_nuts2:
-#     gdf_eu_cm[col] = df_eu_cm_nuts2[col]
-
-gdf_va_p_2030_nuts2_base = var2gdf_cm(gdf_eu_cm,
-                                      df_va_p_2030_nuts2_base)
-
-rw.plot_gdf_cm(gdf_va_p_2030_nuts2_base,
-               df_va_p_2030_nuts2_base,
-               scen='base')
-
-gdf_va_p_2030_nuts2_scen = var2gdf_cm(gdf_eu_cm,
-                                      df_va_p_2030_nuts2_scen)
-
-rw.plot_gdf_cm(gdf_va_p_2030_nuts2_scen,
-               df_va_p_2030_nuts2_scen,
-               scen='scen')
-
-gdf_va_p_2030_nuts2_delta = var2gdf_cm(gdf_eu_cm,
-                                       df_va_p_2030_nuts2_delta)
-
-rw.plot_gdf_cm(gdf_va_p_2030_nuts2_delta,
-               df_va_p_2030_nuts2_delta,
-               scen='delta')
-
-fig = plt.figure(figsize=rw.cm2inch((36/2, 281/3)), dpi=400)
-# plt.rcParams['font.size'] = 7.0
-g = sns.heatmap(df_va_p_2030_nuts2_delta, cmap='coolwarm', square=True, center=0)
-g.set_facecolor('lightgrey')
-# g.yaxis.set_ticks_position("right")
-plt.yticks(rotation=0)
-plt.tight_layout()
-plt.savefig(cfg.RESULT_PNG_DIR_PATH + 'va_p_2030_nuts2_delta')
-
-
-# fig = plt.figure(figsize=rw.cm2inch((16, 16)), dpi=cfg.dpi)
-# for t_var_id, t_var in enumerate(l_var):
-#     plot_id = t_var_id+1
-#     plot_loc = 220+plot_id
-#     ax = fig.add_subplot(plot_loc)
-
-#     var_name, var_df = t_var
-#     var_gdf = rw.globiom2gdf_nuts2(
-#         var_df, var_name, gdf_eu_gb
-#     )
-#     if 'delta' in var_name:
-#         cmap = 'coolwarm'
-#         cmap_name = cmap
-#         vmin = int(np.floor(-var_gdf.max()))
-#         vmax = int(np.ceil(var_gdf.max()))
-#     else:
-#         # cmap_name = 'viridis'
-#         # cmap = cmap_name
-
-#         # cmap_name = "flare"
-#         # cmap = sns.color_palette(cmap_name, as_cmap=True)
-
-#         cmap_name = "crest"
-#         cmap = sns.color_palette(cmap_name, as_cmap=True)
-
-#         vmin = int(np.floor(var_gdf.min()))
-#         vmax = int(np.ceil(var_gdf.max()))
-
-#     gdf_eu_gb[var_name] = var_gdf
-#     gdf_eu_gb.plot(column=var_name,
-#                    missing_kwds={"color": "lightgrey"},
-#                    legend=True,
-#                    legend_kwds={'ticks': [vmin,
-#                                           # int((vmin+vmax)/2),
-#                                           vmax]},
-#                    cmap=cmap,
-#                    vmin=vmin,
-#                    vmax=vmax,
-#                    ax=ax)
-#     plt.axis('off')
-#     # plt.tight_layout()
-#     # plt.savefig(cfg.RESULT_PNG_DIR_PATH + f"{cfg.DATE}_{var_name}_{cmap_name}")
-# plt.tight_layout()
-
-
-
-# d_va_p_2030_nuts2_base_gdf =
-
-
-###
-
-
-#     df.index
-#     gdf_eu_cm_nuts2 = gdf_eu_cm["NUTS_ID"]
-#     for ind in df.columns:
-#         if ind not in d_eu_cm_nuts2:
-#             d_eu_cm_nuts2[ind] = {}
-#         for nuts2_id, nuts2 in enumerate(gdf_eu_cm_nuts2):
-#             if nuts2 in df.index:
-#                 d_eu_cm_nuts2[ind][nuts2_id] = df.loc[nuts2, ind]
-#             else:
-#                 d_eu_cm_nuts2[ind][nuts2_id] = np.nan
-#                 print('nuts2 {nuts2} not in ')
-
-
-
-# if nuts2 in d_df:
-#     val = d_df[nuts2]
-#     d_eu_nuts2[var][nuts2_id] = val
-# else:
-#     d_eu_nuts2[var][nuts2_id] = np.nan
-
-
-###
-fig = plt.figure(figsize=rw.cm2inch((16, 14)), dpi=400)
-# plt.rcParams['font.size'] = 7.0
-g = sns.heatmap(df_va_p_2030_delta_u.T, cmap='coolwarm', square=True, center=0)
-g.set_facecolor('lightgrey')
-# g.yaxis.set_ticks_position("right")
-plt.yticks(rotation=0)
-plt.tight_layout()
-plt.savefig(cfg.RESULT_PNG_DIR_PATH + 'va_p_2030_delta_u_world')
-
-fig = plt.figure(figsize=rw.cm2inch((16, 14)), dpi=400)
-# plt.rcParams['font.size'] = 7.0
-g = sns.heatmap(df_emp_2030_delta_u.T, cmap='coolwarm', square=True, center=0)
-g.set_facecolor('lightgrey')
-# g.yaxis.set_ticks_position("right")
-plt.yticks(rotation=0)
-plt.tight_layout()
-plt.savefig(cfg.RESULT_PNG_DIR_PATH + 'emp_2030_delta_u_world')
-
-
-fig = plt.figure(figsize=rw.cm2inch((16, 16)), dpi=cfg.dpi)
-for t_var_id, t_var in enumerate(l_var):
-    plot_id = t_var_id+1
-    plot_loc = 220+plot_id
-    ax = fig.add_subplot(plot_loc)
-
-    var_name, var_df = t_var
-    var_gdf = rw.globiom2gdf_nuts2(
-        var_df, var_name, gdf_eu_gb
-    )
-    if 'delta' in var_name:
-        cmap = 'coolwarm'
-        cmap_name = cmap
-        vmin = int(np.floor(-var_gdf.max()))
-        vmax = int(np.ceil(var_gdf.max()))
-    else:
-        # cmap_name = 'viridis'
-        # cmap = cmap_name
-
-        # cmap_name = "flare"
-        # cmap = sns.color_palette(cmap_name, as_cmap=True)
-
-        cmap_name = "crest"
-        cmap = sns.color_palette(cmap_name, as_cmap=True)
-
-        vmin = int(np.floor(var_gdf.min()))
-        vmax = int(np.ceil(var_gdf.max()))
-
-    gdf_eu_gb[var_name] = var_gdf
-    gdf_eu_gb.plot(column=var_name,
-                   missing_kwds={"color": "lightgrey"},
-                   legend=True,
-                   legend_kwds={'ticks': [vmin,
-                                          # int((vmin+vmax)/2),
-                                          vmax]},
-                   cmap=cmap,
-                   vmin=vmin,
-                   vmax=vmax,
-                   ax=ax)
-    plt.axis('off')
-    # plt.tight_layout()
-    # plt.savefig(cfg.RESULT_PNG_DIR_PATH + f"{cfg.DATE}_{var_name}_{cmap_name}")
-plt.tight_layout()
-plt.savefig(cfg.RESULT_PNG_DIR_PATH + 'eu28')
+if plot:
+    plt.close("all")
+
+    gdf_eu_gb = rr.read_gdf_eu(version='globiom')
+    gdf_eu_gb.plot()
+
+    gdf_eu_cm = rr.read_gdf_eu(version='circumat')
+    gdf_eu_cm.plot()
+
+    l_var = [
+        ("va_p_2030_base_ielcb_nuts2", df_va_p_2030_base_ielcb_nuts2),
+        # ("va_p_2030_scen_ielcb_nuts2", df_va_p_2030_scen_ielcb_nuts2),
+        ("va_p_2030_delta_ielcb_nuts2", df_va_p_2030_delta_ielcb_nuts2),
+        # ("va_p_2030_delta_r_ielcb_nuts2", df_va_p_2030_delta_r_ielcb_nuts2),
+        ("emp_2030_base_ielcb_nuts2", df_emp_2030_base_ielcb_nuts2),
+        # ("emp_2030_scen_ielcb_nuts2", df_emp_2030_scen_ielcb_nuts2),
+        ("emp_2030_delta_ielcb_nuts2", df_emp_2030_delta_ielcb_nuts2),
+        # ("emp_2030_delta_r_ielcb_nuts2", df_emp_2030_delta_r_ielcb_nuts2)
+        ]
+
+    plt.close('all')
+
+    df_va_p_2030_delta_u = df_va_p_2030_delta.unstack()
+    df_emp_2030_delta_u = df_emp_2030_delta.unstack()
+
+    df_va_p_2030_nuts2_base = rc.var_cntr2nuts(df_va_p_2030_base)
+    df_va_p_2030_nuts2_scen = rc.var_cntr2nuts(df_va_p_2030_scen)
+    df_va_p_2030_nuts2_delta = rc.var_cntr2nuts(df_va_p_2030_delta)
+
+    gdf_va_p_2030_nuts2_base = rw.var2gdf_cm(gdf_eu_cm,
+                                             df_va_p_2030_nuts2_base)
+
+    rw.plot_gdf_cm(gdf_va_p_2030_nuts2_base,
+                   df_va_p_2030_nuts2_base,
+                   scen='base')
+
+    gdf_va_p_2030_nuts2_scen = rw.var2gdf_cm(gdf_eu_cm,
+                                             df_va_p_2030_nuts2_scen)
+
+    rw.plot_gdf_cm(gdf_va_p_2030_nuts2_scen,
+                   df_va_p_2030_nuts2_scen,
+                   scen='scen')
+
+    gdf_va_p_2030_nuts2_delta = rw.var2gdf_cm(gdf_eu_cm,
+                                              df_va_p_2030_nuts2_delta)
+
+    rw.plot_gdf_cm(gdf_va_p_2030_nuts2_delta,
+                   df_va_p_2030_nuts2_delta,
+                   scen='delta')
+
+    fig = plt.figure(figsize=rw.cm2inch((36/2, 281/3)), dpi=400)
+    g = sns.heatmap(df_va_p_2030_nuts2_delta, cmap='coolwarm', square=True, center=0)
+    g.set_facecolor('lightgrey')
+    plt.yticks(rotation=0)
+    plt.tight_layout()
+    plt.savefig(cfg.RESULT_PNG_DIR_PATH + 'va_p_2030_nuts2_delta')
+
+    fig = plt.figure(figsize=rw.cm2inch((16, 14)), dpi=400)
+    g = sns.heatmap(df_va_p_2030_delta_u.T, cmap='coolwarm', square=True, center=0)
+    g.set_facecolor('lightgrey')
+    plt.yticks(rotation=0)
+    plt.tight_layout()
+    plt.savefig(cfg.RESULT_PNG_DIR_PATH + 'va_p_2030_delta_u_world')
+
+    fig = plt.figure(figsize=rw.cm2inch((16, 14)), dpi=400)
+    g = sns.heatmap(df_emp_2030_delta_u.T, cmap='coolwarm', square=True, center=0)
+    g.set_facecolor('lightgrey')
+    plt.yticks(rotation=0)
+    plt.tight_layout()
+    plt.savefig(cfg.RESULT_PNG_DIR_PATH + 'emp_2030_delta_u_world')
+
+    fig = plt.figure(figsize=rw.cm2inch((16, 16)), dpi=cfg.dpi)
+    for t_var_id, t_var in enumerate(l_var):
+        plot_id = t_var_id+1
+        plot_loc = 220+plot_id
+        ax = fig.add_subplot(plot_loc)
+
+        var_name, var_df = t_var
+        var_gdf = rw.globiom2gdf_nuts2(
+            var_df, var_name, gdf_eu_gb
+        )
+        if 'delta' in var_name:
+            cmap = 'coolwarm'
+            cmap_name = cmap
+            vmin = int(np.floor(-var_gdf.max()))
+            vmax = int(np.ceil(var_gdf.max()))
+        else:
+            cmap_name = "crest"
+            cmap = sns.color_palette(cmap_name, as_cmap=True)
+
+            vmin = int(np.floor(var_gdf.min()))
+            vmax = int(np.ceil(var_gdf.max()))
+
+        gdf_eu_gb[var_name] = var_gdf
+        gdf_eu_gb.plot(column=var_name,
+                       missing_kwds={"color": "lightgrey"},
+                       legend=True,
+                       legend_kwds={'ticks': [vmin,
+                                              vmax]},
+                       cmap=cmap,
+                       vmin=vmin,
+                       vmax=vmax,
+                       ax=ax)
+        plt.axis('off')
+    plt.tight_layout()
+    plt.savefig(cfg.RESULT_PNG_DIR_PATH + 'eu28')
 
 rw.save_wb(wb_full, cfg.RESULT_XLSX_DIR_PATH + cfg.file_name_excel_full)
 

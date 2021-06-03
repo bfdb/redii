@@ -331,3 +331,21 @@ def plot_gdf_cm(gdf_eu, df, scen):
         plt.tight_layout()
         plt.savefig(f'{cfg.RESULT_PNG_DIR_PATH}{scen}_{col}')
         plt.close('all')
+
+
+def var2gdf_cm(gdf_eu_cm, df):
+    d_eu_cm_nuts2 = {}
+    for ind in df:
+        d_eu_cm_nuts2[ind] = {}
+        for nuts2_id, nuts2 in enumerate(gdf_eu_cm['NUTS_ID']):
+            if nuts2 in df.index:
+                d_eu_cm_nuts2[ind][nuts2_id] = df.loc[nuts2, ind]
+            else:
+                d_eu_cm_nuts2[ind][nuts2_id] = np.nan
+
+    df_eu_cm_nuts2 = pd.DataFrame(d_eu_cm_nuts2)
+
+    for col in df_eu_cm_nuts2:
+        gdf_eu_cm[col] = df_eu_cm_nuts2[col]
+
+    return gdf_eu_cm

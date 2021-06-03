@@ -329,3 +329,12 @@ def read_ind_cm2em():
     df_eb_ind_code2em_ind_agg = df_eb_ind_code2em_ind_agg.droplevel(axis=0,
                                                                     level=0)
     return df_eb_ind_code2em_ind_agg
+
+
+def harmonize_col_order(df_base, df_scen):
+    df_scen_u = df_scen.unstack()
+    df_base_u = df_base.unstack()
+    df_base_u = df_base_u[df_scen_u.columns]
+    df_base = df_base_u.stack(dropna=False)
+    df_scen = df_scen_u.stack(dropna=False)
+    return df_base, df_scen

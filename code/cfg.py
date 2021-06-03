@@ -231,10 +231,25 @@ file_name_prod_nuts2_2030_scen_s_bm_cntr = "p_n2_2030_scen_s_bm_cntr.txt"
 file_name_prod_nuts2_2030_delta_s_bm_cntr = "p_n2_2030_delta_s_bm_cntr.txt"
 file_name_prod_nuts2_2030_delta_r_s_bm_cntr = "p_n2_2030_delta_r_s_bm_cntr.txt"
 
+file_name_prod_nuts2_2030_base_bm_all = "p_n2_2030_base_bm_all.txt"
+file_name_prod_nuts2_2030_scen_bm_all = "p_n2_2030_scen_bm_all.txt"
+file_name_prod_nuts2_2030_delta_bm_all = "p_n2_2030_delta_bm_all.txt"
+file_name_prod_nuts2_2030_delta_r_bm_all = "p_n2_2030_delta_r_bm_all.txt"
+
 file_name_va_p_2030_base_ielcb_cntr_eu = "va_p_2030_base_ielcb_cntr_eu.txt"
 file_name_va_p_2030_scen_ielcb_cntr_eu = "va_p_2030_scen_ielcb_cntr_eu.txt"
 file_name_va_p_2030_delta_ielcb_cntr_eu = "va_p_2030_delta_ielcb_cntr_eu.txt"
 file_name_va_p_2030_delta_r_ielcb_cntr_eu = "va_p_2030_delta_r_ielcb_cntr_eu.txt"
+
+file_name_y_p_2030_base = "y_p_2030_base.txt"
+file_name_y_p_2030_scen = "y_p_2030_scen.txt"
+file_name_y_p_2030_delta = "y_p_2030_delta.txt"
+file_name_y_p_2030_delta_r = "y_p_2030_delta_r.txt"
+
+file_name_y_q_2030_base = "y_q_2030_base.txt"
+file_name_y_q_2030_scen = "y_q_2030_scen.txt"
+file_name_y_q_2030_delta = "y_q_2030_delta.txt"
+file_name_y_q_2030_delta_r = "y_q_2030_delta_r.txt"
 
 file_name_excel_full = "output_full.xlsx"
 file_name_excel_delta_r = "output_delta_r.xlsx"
