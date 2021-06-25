@@ -89,34 +89,34 @@ df_va_p_2030_cntr_delta = df_va_p_2030_cntr_scen - df_va_p_2030_cntr_base
 df_va_p_2030_cntr_delta_r = df_va_p_2030_cntr_scen / df_va_p_2030_cntr_base - 1
 
 # Get value added for biomass electricity industry of EU member states.
-df_va_p_2030_base_ielcb = df_va_p_2030_base[:, "iELCB"]
-df_va_p_2030_scen_ielcb = df_va_p_2030_scen[:, "iELCB"]
-df_va_p_2030_delta_ielcb = df_va_p_2030_delta[:, "iELCB"]
-df_va_p_2030_delta_r_ielcb = df_va_p_2030_delta_r[:, "iELCB"]
+df_va_p_2030_base_ifore = df_va_p_2030_base[:, "iFORE"]
+df_va_p_2030_scen_ifore = df_va_p_2030_scen[:, "iFORE"]
+df_va_p_2030_delta_ifore = df_va_p_2030_delta[:, "iFORE"]
+df_va_p_2030_delta_r_ifore = df_va_p_2030_delta_r[:, "iFORE"]
 
-df_va_p_2030_base_ielcb_cntr_eu = rc.va_ind_cntr_eu(df_va_p_2030_base, "iELCB")
+df_va_p_2030_base_ifore_cntr_eu = rc.va_ind_cntr_eu(df_va_p_2030_base, "iFORE")
 
-df_va_p_2030_scen_ielcb_cntr_eu = rc.va_ind_cntr_eu(df_va_p_2030_scen, "iELCB")
+df_va_p_2030_scen_ifore_cntr_eu = rc.va_ind_cntr_eu(df_va_p_2030_scen, "iFORE")
 
-df_va_p_2030_delta_ielcb_cntr_eu = rc.va_ind_cntr_eu(df_va_p_2030_delta, "iELCB")
+df_va_p_2030_delta_ifore_cntr_eu = rc.va_ind_cntr_eu(df_va_p_2030_delta, "iFORE")
 
-df_va_p_2030_delta_r_ielcb_cntr_eu = rc.va_ind_cntr_eu(df_va_p_2030_delta_r, "iELCB")
+df_va_p_2030_delta_r_ifore_cntr_eu = rc.va_ind_cntr_eu(df_va_p_2030_delta_r, "iFORE")
 
 
-rw.write_va_ielcb_eu(
-    df_va_p_2030_base_ielcb_cntr_eu, cfg.file_name_va_p_2030_base_ielcb_cntr_eu
+rw.write_va_ifore_eu(
+    df_va_p_2030_base_ifore_cntr_eu, cfg.file_name_va_p_2030_base_ifore_cntr_eu
 )
 
-rw.write_va_ielcb_eu(
-    df_va_p_2030_scen_ielcb_cntr_eu, cfg.file_name_va_p_2030_scen_ielcb_cntr_eu
+rw.write_va_ifore_eu(
+    df_va_p_2030_scen_ifore_cntr_eu, cfg.file_name_va_p_2030_scen_ifore_cntr_eu
 )
 
-rw.write_va_ielcb_eu(
-    df_va_p_2030_delta_ielcb_cntr_eu, cfg.file_name_va_p_2030_delta_ielcb_cntr_eu
+rw.write_va_ifore_eu(
+    df_va_p_2030_delta_ifore_cntr_eu, cfg.file_name_va_p_2030_delta_ifore_cntr_eu
 )
 
-rw.write_va_ielcb_eu(
-    df_va_p_2030_delta_r_ielcb_cntr_eu, cfg.file_name_va_p_2030_delta_r_ielcb_cntr_eu
+rw.write_va_ifore_eu(
+    df_va_p_2030_delta_r_ifore_cntr_eu, cfg.file_name_va_p_2030_delta_r_ifore_cntr_eu
 )
 
 """
@@ -497,63 +497,63 @@ Disaggregate value added to NUTS-2.
 
 # For each EU28 country,
 # disagg value added over nuts2 acc to bm prod frac in base
-df_va_p_2030_base_ielcb_nuts2 = rc.calc_d_cntr_nuts2_ielcb(
+df_va_p_2030_base_ifore_nuts2 = rc.calc_d_cntr_nuts2_ifore(
     df_va_p_2030_base, df_prod_nuts2_2030_base_s_bm_r
 )
 
 # For each EU28 country,
 # disagg value added over nuts2 acc to bm prod frac in scen
-df_va_p_2030_scen_ielcb_nuts2 = rc.calc_d_cntr_nuts2_ielcb(
+df_va_p_2030_scen_ifore_nuts2 = rc.calc_d_cntr_nuts2_ifore(
     df_va_p_2030_scen, df_prod_nuts2_2030_scen_s_bm_r
 )
 
-df_va_p_2030_delta_ielcb_nuts2 = (
-    df_va_p_2030_scen_ielcb_nuts2 - df_va_p_2030_base_ielcb_nuts2
+df_va_p_2030_delta_ifore_nuts2 = (
+    df_va_p_2030_scen_ifore_nuts2 - df_va_p_2030_base_ifore_nuts2
 )
 
-df_va_p_2030_delta_r_ielcb_nuts2 = (
-    df_va_p_2030_scen_ielcb_nuts2 / df_va_p_2030_base_ielcb_nuts2
+df_va_p_2030_delta_r_ifore_nuts2 = (
+    df_va_p_2030_scen_ifore_nuts2 / df_va_p_2030_base_ifore_nuts2
 ) - 1
 
 rw.write_var_nuts2(
-    df_va_p_2030_scen_ielcb_nuts2, cfg.file_name_va_p_2030_scen_ielcb_nuts2
+    df_va_p_2030_scen_ifore_nuts2, cfg.file_name_va_p_2030_scen_ifore_nuts2
 )
 
 rw.write_var_nuts2(
-    df_va_p_2030_base_ielcb_nuts2, cfg.file_name_va_p_2030_base_ielcb_nuts2
+    df_va_p_2030_base_ifore_nuts2, cfg.file_name_va_p_2030_base_ifore_nuts2
 )
 
 rw.write_var_nuts2(
-    df_va_p_2030_delta_ielcb_nuts2, cfg.file_name_va_p_2030_delta_ielcb_nuts2
+    df_va_p_2030_delta_ifore_nuts2, cfg.file_name_va_p_2030_delta_ifore_nuts2
 )
 
 rw.write_var_nuts2(
-    df_va_p_2030_delta_r_ielcb_nuts2, cfg.file_name_va_p_2030_delta_r_ielcb_nuts2
+    df_va_p_2030_delta_r_ifore_nuts2, cfg.file_name_va_p_2030_delta_r_ifore_nuts2
 )
 
 
-rw.write_var_excel(df_va_p_2030_base_ielcb_nuts2,
-                   cfg.file_name_va_p_2030_base_ielcb_nuts2[:-4],
+rw.write_var_excel(df_va_p_2030_base_ifore_nuts2,
+                   cfg.file_name_va_p_2030_base_ifore_nuts2[:-4],
                    wb_full,
                    unstack=0)
 
-rw.write_var_excel(df_va_p_2030_scen_ielcb_nuts2,
-                   cfg.file_name_va_p_2030_scen_ielcb_nuts2[:-4],
+rw.write_var_excel(df_va_p_2030_scen_ifore_nuts2,
+                   cfg.file_name_va_p_2030_scen_ifore_nuts2[:-4],
                    wb_full,
                    unstack=0)
 
-rw.write_var_excel(df_va_p_2030_delta_ielcb_nuts2,
-                   cfg.file_name_va_p_2030_delta_ielcb_nuts2[:-4],
+rw.write_var_excel(df_va_p_2030_delta_ifore_nuts2,
+                   cfg.file_name_va_p_2030_delta_ifore_nuts2[:-4],
                    wb_full,
                    unstack=0)
 
-rw.write_var_excel(df_va_p_2030_delta_r_ielcb_nuts2,
-                   cfg.file_name_va_p_2030_delta_r_ielcb_nuts2[:-4],
+rw.write_var_excel(df_va_p_2030_delta_r_ifore_nuts2,
+                   cfg.file_name_va_p_2030_delta_r_ifore_nuts2[:-4],
                    wb_full,
                    unstack=0)
 
-rw.write_var_excel(df_va_p_2030_delta_r_ielcb_nuts2,
-                   cfg.file_name_va_p_2030_delta_r_ielcb_nuts2[:-4],
+rw.write_var_excel(df_va_p_2030_delta_r_ifore_nuts2,
+                   cfg.file_name_va_p_2030_delta_r_ifore_nuts2[:-4],
                    wb_delta_r,
                    unstack=0)
 
@@ -562,64 +562,64 @@ Disaggregate employment to NUTS-2.
 """
 # For each EU28 country,
 # disagg value added over nuts2 acc to bm prod frac in base
-df_emp_2030_base_ielcb_nuts2 = rc.calc_d_cntr_nuts2_ielcb(
+df_emp_2030_base_ifore_nuts2 = rc.calc_d_cntr_nuts2_ifore(
     df_emp_2030_base, df_prod_nuts2_2030_base_s_bm_r
 )
 
 # For each EU28 country,
 # disagg value added over nuts2 acc to bm prod frac in scen
-df_emp_2030_scen_ielcb_nuts2 = rc.calc_d_cntr_nuts2_ielcb(
+df_emp_2030_scen_ifore_nuts2 = rc.calc_d_cntr_nuts2_ifore(
     df_emp_2030_scen, df_prod_nuts2_2030_scen_s_bm_r
 )
 
-df_emp_2030_delta_ielcb_nuts2 = (
-    df_emp_2030_scen_ielcb_nuts2 - df_emp_2030_base_ielcb_nuts2
+df_emp_2030_delta_ifore_nuts2 = (
+    df_emp_2030_scen_ifore_nuts2 - df_emp_2030_base_ifore_nuts2
 )
 
-df_emp_2030_delta_r_ielcb_nuts2 = (
-    df_emp_2030_scen_ielcb_nuts2 / df_emp_2030_base_ielcb_nuts2
+df_emp_2030_delta_r_ifore_nuts2 = (
+    df_emp_2030_scen_ifore_nuts2 / df_emp_2030_base_ifore_nuts2
 ) - 1
 
 
 rw.write_var_nuts2(
-    df_emp_2030_base_ielcb_nuts2, cfg.file_name_emp_2030_base_ielcb_nuts2
+    df_emp_2030_base_ifore_nuts2, cfg.file_name_emp_2030_base_ifore_nuts2
 )
 
 rw.write_var_nuts2(
-    df_emp_2030_scen_ielcb_nuts2, cfg.file_name_emp_2030_scen_ielcb_nuts2
+    df_emp_2030_scen_ifore_nuts2, cfg.file_name_emp_2030_scen_ifore_nuts2
 )
 
 rw.write_var_nuts2(
-    df_emp_2030_delta_ielcb_nuts2, cfg.file_name_emp_2030_delta_ielcb_nuts2
+    df_emp_2030_delta_ifore_nuts2, cfg.file_name_emp_2030_delta_ifore_nuts2
 )
 
 rw.write_var_nuts2(
-    df_emp_2030_delta_r_ielcb_nuts2, cfg.file_name_emp_2030_delta_r_ielcb_nuts2
+    df_emp_2030_delta_r_ifore_nuts2, cfg.file_name_emp_2030_delta_r_ifore_nuts2
 )
 
 
-rw.write_var_excel(df_emp_2030_base_ielcb_nuts2,
-                   cfg.file_name_emp_2030_base_ielcb_nuts2[:-4],
+rw.write_var_excel(df_emp_2030_base_ifore_nuts2,
+                   cfg.file_name_emp_2030_base_ifore_nuts2[:-4],
                    wb_full,
                    unstack=0)
 
-rw.write_var_excel(df_emp_2030_scen_ielcb_nuts2,
-                   cfg.file_name_emp_2030_scen_ielcb_nuts2[:-4],
+rw.write_var_excel(df_emp_2030_scen_ifore_nuts2,
+                   cfg.file_name_emp_2030_scen_ifore_nuts2[:-4],
                    wb_full,
                    unstack=0)
 
-rw.write_var_excel(df_emp_2030_delta_ielcb_nuts2,
-                   cfg.file_name_emp_2030_delta_ielcb_nuts2[:-4],
+rw.write_var_excel(df_emp_2030_delta_ifore_nuts2,
+                   cfg.file_name_emp_2030_delta_ifore_nuts2[:-4],
                    wb_full,
                    unstack=0)
 
-rw.write_var_excel(df_emp_2030_delta_r_ielcb_nuts2,
-                   cfg.file_name_emp_2030_delta_r_ielcb_nuts2[:-4],
+rw.write_var_excel(df_emp_2030_delta_r_ifore_nuts2,
+                   cfg.file_name_emp_2030_delta_r_ifore_nuts2[:-4],
                    wb_full,
                    unstack=0)
 
-rw.write_var_excel(df_emp_2030_delta_r_ielcb_nuts2,
-                   cfg.file_name_emp_2030_delta_r_ielcb_nuts2[:-4],
+rw.write_var_excel(df_emp_2030_delta_r_ifore_nuts2,
+                   cfg.file_name_emp_2030_delta_r_ifore_nuts2[:-4],
                    wb_delta_r,
                    unstack=0)
 
@@ -634,14 +634,14 @@ if plot:
     gdf_eu_cm.plot()
 
     l_var = [
-        ("va_p_2030_base_ielcb_nuts2", df_va_p_2030_base_ielcb_nuts2),
-        # ("va_p_2030_scen_ielcb_nuts2", df_va_p_2030_scen_ielcb_nuts2),
-        ("va_p_2030_delta_ielcb_nuts2", df_va_p_2030_delta_ielcb_nuts2),
-        # ("va_p_2030_delta_r_ielcb_nuts2", df_va_p_2030_delta_r_ielcb_nuts2),
-        ("emp_2030_base_ielcb_nuts2", df_emp_2030_base_ielcb_nuts2),
-        # ("emp_2030_scen_ielcb_nuts2", df_emp_2030_scen_ielcb_nuts2),
-        ("emp_2030_delta_ielcb_nuts2", df_emp_2030_delta_ielcb_nuts2),
-        # ("emp_2030_delta_r_ielcb_nuts2", df_emp_2030_delta_r_ielcb_nuts2)
+        ("va_p_2030_base_ifore_nuts2", df_va_p_2030_base_ifore_nuts2),
+        # ("va_p_2030_scen_ifore_nuts2", df_va_p_2030_scen_ifore_nuts2),
+        ("va_p_2030_delta_ifore_nuts2", df_va_p_2030_delta_ifore_nuts2),
+        # ("va_p_2030_delta_r_ifore_nuts2", df_va_p_2030_delta_r_ifore_nuts2),
+        ("emp_2030_base_ifore_nuts2", df_emp_2030_base_ifore_nuts2),
+        # ("emp_2030_scen_ifore_nuts2", df_emp_2030_scen_ifore_nuts2),
+        ("emp_2030_delta_ifore_nuts2", df_emp_2030_delta_ifore_nuts2),
+        # ("emp_2030_delta_r_ifore_nuts2", df_emp_2030_delta_r_ifore_nuts2)
         ]
 
     plt.close('all')

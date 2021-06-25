@@ -105,10 +105,10 @@ def read_exec_datetime(file_path):
     return t_exec_datetime
 
 
-def get_ind_out_ielcb(file_path_eu28, var_name_ind_out):
+def get_ind_out_ifore(file_path_eu28, var_name_ind_out):
     df_ind_out = read_gdx(file_path_eu28, var_name_ind_out)
     df_ind_out_pelca = df_ind_out.loc[
-        :, "iELCB",
+        :, "iFORE",
     ]
     df_ind_out_pelca_2030 = df_ind_out_pelca.loc[:, "2030"]
     return df_ind_out_pelca_2030
@@ -121,8 +121,8 @@ def get_imp_pelca(file_path_eu28, var_name_imp):
     return df_imp_pelca_2030
 
 
-def find_imp_pelca_missing_val(df_ind_out_ielcb, df_imp_pelca):
-    l_ind_out_t_cntr_yr = list(df_ind_out_ielcb.index)
+def find_imp_pelca_missing_val(df_ind_out_ifore, df_imp_pelca):
+    l_ind_out_t_cntr_yr = list(df_ind_out_ifore.index)
     l_imp_t_cntr_yr = list(df_imp_pelca.index)
     l_missing_val = []
     for t_cntr_yr in l_ind_out_t_cntr_yr:

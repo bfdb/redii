@@ -224,7 +224,7 @@ def write_prod_bm_cntr(df, file_name):
             csv_file.writerow(row_write)
 
 
-def write_va_ielcb_eu(df, file_name):
+def write_va_ifore_eu(df, file_name):
     d_df = df.to_dict()
     with open(cfg.RESULT_TXT_DIR_PATH + file_name, "w") as write_file:
         csv_file = csv.writer(write_file, delimiter="\t", lineterminator="\n")

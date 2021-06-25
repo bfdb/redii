@@ -37,7 +37,7 @@ def calc_d_cntr_nuts2_r(df):
     return df_cntr_nuts2_r
 
 
-def calc_d_cntr_nuts2_va_ielcb(df_va, df_cntr_nuts2_r):
+def calc_d_cntr_nuts2_va_ifore(df_va, df_cntr_nuts2_r):
     d_df_va = df_va.to_dict()
     d_cntr_nuts2_r = df_cntr_nuts2_r.to_dict()
     d_cntr_nuts2_va = {}
@@ -45,7 +45,7 @@ def calc_d_cntr_nuts2_va_ielcb(df_va, df_cntr_nuts2_r):
         cntr, nuts2 = t_cntr_nuts2
         if cntr in cfg.d_cntr_globiom2exio:
             cntr_exio = cfg.d_cntr_globiom2exio[cntr]
-            cntr_va = d_df_va[cntr_exio, "iELCB"]
+            cntr_va = d_df_va[cntr_exio, "iFORE"]
             cntr_nuts2_r = d_cntr_nuts2_r[t_cntr_nuts2]
             cntr_nuts2_va = cntr_nuts2_r * cntr_va
             d_cntr_nuts2_va[t_cntr_nuts2] = cntr_nuts2_va
@@ -54,7 +54,7 @@ def calc_d_cntr_nuts2_va_ielcb(df_va, df_cntr_nuts2_r):
     return df_cntr_nuts2_va
 
 
-def calc_d_cntr_nuts2_ielcb(df, df_cntr_nuts2_r):
+def calc_d_cntr_nuts2_ifore(df, df_cntr_nuts2_r):
     d_df = df.to_dict()
     d_cntr_nuts2_r = df_cntr_nuts2_r.to_dict()
     d_cntr_nuts2_val = {}
@@ -62,7 +62,7 @@ def calc_d_cntr_nuts2_ielcb(df, df_cntr_nuts2_r):
         cntr, nuts2 = t_cntr_nuts2
         if cntr in cfg.d_cntr_globiom2exio:
             cntr_exio = cfg.d_cntr_globiom2exio[cntr]
-            cntr_val = d_df[cntr_exio, "iELCB"]
+            cntr_val = d_df[cntr_exio, "iFORE"]
             cntr_nuts2_r = d_cntr_nuts2_r[t_cntr_nuts2]
             cntr_nuts2_val = cntr_nuts2_r * cntr_val
             d_cntr_nuts2_val[t_cntr_nuts2] = cntr_nuts2_val
